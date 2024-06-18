@@ -1,0 +1,4 @@
+test:
+  - !Newtype 1
+  - !Tuple [ 0, 0, 0 ]
+  - !Struct { x: 1.0, y: 2.0 }

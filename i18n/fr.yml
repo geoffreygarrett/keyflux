@@ -1,0 +1,92 @@
+errors:
+  config:
+    read_file_error: "Échec de la lecture du fichier : %{error}"
+    parse_yaml_error: "Échec de l'analyse du YAML : %{error}"
+    parse_json_error: "Échec de l'analyse du JSON : %{error}"
+    parse_toml_error: "Échec de l'analyse du TOML : %{error}"
+    env_var_error: "Variable d'environnement introuvable : %{error}"
+    unknown_flux_type: "Type de flux inconnu : %{error}"
+    invalid_config: "Configuration invalide"
+  flux:
+    http_request_error: "Échec de la requête HTTP : %{error}"
+    unauthorized_error: "Accès non autorisé : %{error}"
+    invalid_key_id: "ID de clé invalide"
+    invalid_key: "Clé invalide"
+    decode_key_error: "Échec du décodage de la clé"
+    create_public_key_error: "Échec de la création de la clé publique"
+    get_public_key_error: "Échec de l'obtention de la clé publique"
+    io_error: "Erreur d'E/S : %{error}"
+    serialize_error: "Erreur de sérialisation : %{error}"
+    unsupported_format: "Format de fichier non pris en charge"
+    not_implemented_error: "Non implémenté : %{error}"
+    flux_failed: "Échec de l'opération de flux : %{error}"
+    invalid_nonce: "Nonce invalide"
+    invalid_ciphertext: "Texte chiffré invalide"
+    decryption_failed: "Échec du déchiffrement"
+    invalid_utf8: "UTF-8 invalide"
+    vercel:
+      expected_key: "Clé `vercel` attendue dans le fichier de configuration"
+  key:
+    key_not_found: "Clé introuvable : %{error}"
+    invalid_key: "Clé invalide : %{error}"
+    resolve_key_error: "Échec de la résolution de la clé : %{error}"
+    unsupported_key_type: "Type de clé non pris en charge : %{error}"
+    io_error: "Erreur d'E/S : %{error}"
+
+loading:
+  file: "Chargement du fichier d'environnement: %{file}"
+
+error:
+  unable_read_file: "Impossible de lire le fichier"
+  json_format: "Erreur de format JSON"
+  yaml_format: "Erreur de format YAML"
+  toml_format: "Erreur de format TOML"
+  failed_load_env_file: "❌ Échec du chargement du fichier .env: %{file}"
+  unsupported_file_format: "⚠️ Format de fichier d'environnement non pris en charge pour %{file}"
+  failed_reload_config: "❌ Échec du rechargement de la configuration: %{error}"
+  watch_error: "❌ Erreur de surveillance: %{error}"
+  failed_sync_secrets: "❌ Échec de la synchronisation des secrets: %{error}"
+  sync_secrets: "❌ Erreur de surveillance: %{error}"
+
+
+
+info:
+  setting_env_var: "Définition de la variable d'environnement: %{name}=[REDACTED]"
+  secrets_synced: "✅ Secrets synchronisés avec succès."
+  secrets_synced_reload: "✅ Secrets synchronisés avec succès après rechargement."
+  using_direct_value: "🏷️ Utilisation de la valeur directe fournie pour la clé '%{key}'."
+  fluxing_key: "🔑 Flux de la clé : %{key} avec valeur : ******"
+
+warn:
+  key_not_resolved: "⚠️  La clé '%{key}' n'a pas pu être résolue."
+
+trace:
+  creating_file_flux: "Création du flux de fichier"
+  env_config: "env_config: %{env_config}"
+  loading_env_file: "🔄 Chargement des variables d'environnement depuis le fichier: %{file}"
+  parsed_cli_args: "Arguments de la ligne de commande analysés: %{cli}"
+  loaded_config: "Configuration chargée"
+  starting_secret_sync: "Démarrage de la synchronisation des secrets."
+  config_file_changed: "⚙️ Le fichier de configuration a été modifié. Rechargement..."
+  reloaded_config: "Configuration rechargée"
+  unhandled_event: "Événement non géré: %{event}"
+  starting_sync: "Démarrage de la synchronisation"
+  loading_config_file: "🔄 Chargement du fichier de configuration: %{file}"
+  processing_flux_config: "🔍 Traitement de la configuration du flux : %{flux}"
+  flux_instance_initialized: "🔍 Instance de flux initialisée."
+  flux_instance_batched: "🔍 Instance de flux traitée par lot."
+  flux_instance_finalized: "🔍 Instance de flux finalisée."
+
+cli:
+  name: "KeyFlux"
+  version: "0.1.2"
+  author: "Geoffrey Garrett <author@example.com>"
+  about: "Un outil pour synchroniser les variables d'environnement."
+  env_files:
+    help: "Liste de fichiers d'environnement à charger, séparés par des virgules."
+  config_file:
+    help: "Chemin vers le fichier de configuration."
+  watch:
+    help: "Surveille les modifications du fichier de configuration et recharge automatiquement."
+  log_level:
+    help: "Définir le niveau de journalisation."

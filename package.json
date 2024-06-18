@@ -1,0 +1,21 @@
+{
+  "name": "keyflux-wasm",
+  "version": "0.1.0",
+  "files": [
+    "pkg"
+  ],
+  "main": "pkg/keyflux_wasm.js",
+  "types": "pkg/keyflux_wasm.d.ts",
+  "bin": "bin.js",
+  "scripts": {
+    "gpt:context": " find . -type f ! -path './Cargo.lock' ! -path './env/*' ! -path './target/*' ! -name 'text.txt' | while read -r file; do echo -e \"======== $file ========\" >> text.txt; cat \"$file\" >> text.txt; echo \"\" >> text.txt; done\n\n",
+    "build": "wasm-pack build --target nodejs",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "wasm-pack": "^0.10.1"
+  },
+  "dependencies": {
+    "@napi-rs/cli": "^2.18.3"
+  }
+}
