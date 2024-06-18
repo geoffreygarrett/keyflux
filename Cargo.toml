@@ -1,6 +1,6 @@
 [package]
 name = "keyflux"
-version = "0.1.8"
+version = "0.1.9"
 edition = "2021"
 description = "A CLI tool and library for synchronizing environment secrets across multiple platforms including local files, GitHub Secrets, Supabase Vault, and Vercel Secrets. It facilitates secure management and automation of sensitive data."
 license = "MIT"
