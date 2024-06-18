@@ -1,6 +1,7 @@
 use std::cmp::Ordering;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use serde_json::Value;
 
 /// `KeyDetail` represents a detailed key with multiple attributes.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -9,7 +10,7 @@ pub struct KeyDetail {
     pub value: String,
     pub description: Option<String>,
     pub enabled: bool,
-    pub metadata: Option<HashMap<String, String>>,
+    pub metadata: Option<HashMap<String, Value>>,
     pub last_updated: Option<String>,
     pub created_at: Option<String>,
     pub tags: Option<Vec<String>>,

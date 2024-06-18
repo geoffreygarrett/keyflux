@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 use uuid::Uuid;
 use chrono::Utc;
+use serde_json::Value;
 use crate::error::FluxError;
 use crate::file::format_manager::FormatAdapter;
 use crate::file::key::{Key, KeyDetail, KeyTransform};
@@ -30,7 +31,7 @@ struct PostmanVariable {
     type_field: String,
     enabled: bool,
     description: Option<String>,
-    metadata: Option<HashMap<String, String>>,
+    metadata: Option<HashMap<String, Value>>,
     last_updated: Option<String>,
     created_at: Option<String>,
     tags: Option<Vec<String>>,
@@ -38,6 +39,10 @@ struct PostmanVariable {
 
 #[async_trait]
 impl FormatAdapter for PostmanAdapter {
+
+    fn format_tag(&self) -> &str {
+        "postman"
+    }
     fn default_file_name(&self) -> &str {
         "{name}.json"
     }
@@ -47,11 +52,11 @@ impl FormatAdapter for PostmanAdapter {
     // }
 
 
-    fn path_valid(&self, path: &str) -> bool {
+    fn path_valid(&self, path: &PathBuf) -> bool {
         PathBuf::from(path).extension().map_or(false, |ext| ext == "json")
     }
 
-    fn load_keys(&self, path: &str) -> Result<KeyCollection, FluxError> {
+    fn load_keys(&self, path: &PathBuf) -> Result<KeyCollection, FluxError> {
         let contents = std::fs::read_to_string(path)?;
         let postman_env: PostmanEnvironment = serde_json::from_str(&contents).map_err(FluxError::from)?;
         let mut map = KeyCollectionMap::new();
@@ -70,7 +75,7 @@ impl FormatAdapter for PostmanAdapter {
         Ok(KeyCollection::Map(map))
     }
 
-    fn save_keys(&self, path: &str, keys: &KeyCollection) -> Result<(), FluxError> {
+    fn save_keys(&self, path: &PathBuf, keys: &KeyCollection) -> Result<(), FluxError> {
         // let map: KeyCollection = match keys {
         //     KeyCollection::Map(map) => map.to_key_detail_collection(),
         //     KeyCollection::List(list) => {
@@ -110,7 +115,7 @@ impl FormatAdapter for PostmanAdapter {
         Ok(())
     }
 
-    fn can_handle(&self, path: &str) -> bool {
-        PathBuf::from(path).extension().map_or(false, |ext| ext == "json")
+    fn can_handle(&self, path: &PathBuf) -> bool {
+        path.extension().map_or(false, |ext| ext == "json")
     }
 }

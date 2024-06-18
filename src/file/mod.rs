@@ -9,6 +9,7 @@ pub mod postman;
 pub mod key;
 pub mod key_collection;
 pub mod parser;
+pub mod metadata;
 
 
 // use crate::file::format_adapter::FormatAdapter;

@@ -71,7 +71,7 @@ pub async fn diff(file1: &PathBuf, file2: &PathBuf) -> Result<(), io::Error> {
 async fn load_keys_from_file(file: &PathBuf) -> Result<KeyCollection, FluxError> {
 
     let manager = FormatManager::instance_read().await;
-    manager.load_keys(&file)
+    manager.load_keys(&file, None)
 }
 fn convert_flux_error_to_io_error(error: FluxError) -> io::Error {
     io::Error::new(io::ErrorKind::Other, format!("FluxError: {:?}", error))

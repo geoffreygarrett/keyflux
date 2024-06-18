@@ -20,7 +20,7 @@ pub async fn convert(file: &PathBuf, fmt: &str) -> Result<(), Box<dyn std::error
     let manager = FormatManager::instance_read().await;
 
     // Load the keys from the input file.
-    let keys = match manager.load_keys(file) {
+    let keys = match manager.load_keys(file, None) {
         Ok(keys) => keys,
         Err(e) => {
             let error_message = format!("Failed to load keys from '{}': {:?}", file.to_str().unwrap(), e);
@@ -36,12 +36,13 @@ pub async fn convert(file: &PathBuf, fmt: &str) -> Result<(), Box<dyn std::error
     // let output_path = file.with_extension(fmt);
 
     let output_path = file.with_file_name(new_file_name);
+    // let adapter = manager.get_adapter_by_tag(fmt).unwrap();
 
     // log the output path
     info!("Output path: {}", output_path.to_str().unwrap());
 
     // Attempt to save the keys into the new format.
-    if let Err(e) = manager.save_keys(&output_path, &keys) {
+    if let Err(e) = manager.save_keys(&output_path, &keys, Some(fmt)) {
         let error_message = format!("Failed to save keys to '{}': {:?}", output_path.to_str().unwrap(), e);
         error!("{}", error_message);
         return Err(Box::new(e));

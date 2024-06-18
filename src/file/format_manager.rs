@@ -140,13 +140,16 @@ pub trait FormatAdapter {
     fn default_file_name(&self) -> &str;
 
     /// Checks if the adapter can handle the specified file path.
-    fn path_valid(&self, path: &str) -> bool;
+    fn format_tag(&self) -> &str;
+
+    /// Checks if the adapter can handle the specified file path.
+    fn path_valid(&self, path: &PathBuf) -> bool;
 
     /// Loads keys from a file using this adapter.
-    fn load_keys(&self, path: &str) -> Result<KeyCollection, FluxError>;
+    fn load_keys(&self, path: &PathBuf) -> Result<KeyCollection, FluxError>;
 
     /// Saves keys to a file using this adapter.
-    fn save_keys(&self, path: &str, keys: &KeyCollection) -> Result<(), FluxError>;
+    fn save_keys(&self, path: &PathBuf, keys: &KeyCollection) -> Result<(), FluxError>;
 
     /// Priority of the adapter, higher values indicate higher priority.
     fn priority(&self) -> i32 {
@@ -154,7 +157,7 @@ pub trait FormatAdapter {
     }
 
 
-    fn can_handle(&self, path: &str) -> bool {
+    fn can_handle(&self, path: &PathBuf) -> bool {
         self.path_valid(path)
     }
 }
@@ -198,20 +201,33 @@ impl FormatManager {
     }
 
     /// Retrieves the appropriate adapter based on file content.
-    pub fn get_adapter(&self, path: &PathBuf) -> Option<&Box<dyn FormatAdapter + Send + Sync>> {
-        self.adapters.iter().find(|adapter| adapter.can_handle(path.to_str().unwrap()))
+    pub fn get_adapter_by_path(&self, path: &PathBuf) -> Option<&Box<dyn FormatAdapter + Send + Sync>> {
+        self.adapters.iter().find(|adapter| adapter.can_handle(path))
+    }
+
+    pub fn get_adapter_by_tag(&self, tag: &str) -> Option<&Box<dyn FormatAdapter + Send + Sync>> {
+        self.adapters.iter().find(|adapter| adapter.format_tag() == tag)
     }
 
     /// Loads keys from a file using the appropriate adapter.
-    pub fn load_keys(&self, path: &PathBuf) -> Result<KeyCollection, FluxError> {
-        let adapter = self.get_adapter(path).ok_or_else(|| FluxError::UnsupportedFormat(format!("Unsupported format for file: {}", path.to_str().unwrap())))?;
-        adapter.load_keys(path.to_str().unwrap())
+    pub fn load_keys(&self, path: &PathBuf, fmt: Option<&str>) -> Result<KeyCollection, FluxError> {
+        let adapter = self.get_adapter_by_path(path).ok_or_else(|| FluxError::UnsupportedFormat(format!("Unsupported format for file: {}", path.to_str().unwrap())))?;
+        adapter.load_keys(path)
     }
 
     /// Saves keys to a file using the appropriate adapter.
-    pub fn save_keys(&self, path: &PathBuf, keys: &KeyCollection) -> Result<(), FluxError> {
-        let adapter = self.get_adapter(path).ok_or_else(|| FluxError::UnsupportedFormat(format!("Unsupported format for file: {}", path.to_str().unwrap())))?;
-        adapter.save_keys(path.to_str().unwrap(), keys)
+    // TODO: Add support for specifying name of file via templates and regexing to get name etc.
+    pub fn save_keys(&self, path: &PathBuf, keys: &KeyCollection, fmt: Option<&str>) -> Result<(), FluxError> {
+        match fmt {
+            Some(fmt) => {
+                let adapter = self.get_adapter_by_tag(fmt).ok_or_else(|| FluxError::UnsupportedFormat(format!("Unsupported format: {}", fmt)))?;
+                adapter.save_keys(path, keys)
+            }
+            None => {
+                let adapter = self.get_adapter_by_path(path).ok_or_else(|| FluxError::UnsupportedFormat(format!("Unsupported format for file: {}", path.to_str().unwrap())))?;
+                adapter.save_keys(path, keys)
+            }
+        }
     }
 
     /// Adds a new format adapter to the manager.
