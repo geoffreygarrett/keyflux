@@ -89,3 +89,11 @@ cli:
     help: "Watch for changes in the configuration file and reload automatically."
   log_level:
     help: "Set the logging level."
+  diff:
+    key: "🔑 Key"
+    status: "Status"
+    identical: "✔ Identical"
+    varies: "≠ Varies"
+    only_in_file1: "✘ Only in file1"
+    only_in_file2: "✘ Only in file2"
+

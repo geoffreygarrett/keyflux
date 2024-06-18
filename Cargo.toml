@@ -64,6 +64,7 @@ clap_complete = "4.5.5"
 diff = "0.1.13"
 indexmap = { version = "2.2.6", features = ["serde"] }
 dirs = "5.0.1"
+prettytable = "0.10"
 
 [dev-dependencies]
 env_logger = "0.10"

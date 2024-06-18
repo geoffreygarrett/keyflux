@@ -59,5 +59,8 @@ pub use crate::error::ConfigError; // Correctly reference ConfigError from your 
 #[macro_use]
 extern crate rust_i18n;
 
+#[macro_use] extern crate prettytable;
+
+
 // Initialize translations for the current crate.
 i18n!("i18n", fallback = "en");

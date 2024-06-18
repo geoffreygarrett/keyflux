@@ -89,3 +89,10 @@ cli:
     help: "Vigilar cambios en el archivo de configuración y recargar automáticamente."
   log_level:
     help: "Establecer el nivel de registro."
+  diff:
+    key: "🔑 Clave"
+    status: "Estado"
+    identical: "✔ Idéntico"
+    varies: "≠ Varía"
+    only_in_file1: "✘ Solo en el archivo1"
+    only_in_file2: "✘ Solo en el archivo2"

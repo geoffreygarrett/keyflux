@@ -87,3 +87,10 @@ cli:
     help: "Surveille les modifications du fichier de configuration et recharge automatiquement."
   log_level:
     help: "Définir le niveau de journalisation."
+  diff:
+    key: "🔑 Clé"
+    status: "Statut"
+    identical: "✔ Identique"
+    varies: "≠ Varie"
+    only_in_file1: "✘ Seulement dans le fichier1"
+    only_in_file2: "✘ Seulement dans le fichier2"
