@@ -8,7 +8,7 @@ use lazy_static::lazy_static;
 use clap_complete::{generate, Generator, Shell};
 
 lazy_static! {
-    static ref CLI_NAME: String = t!("cli.name");
+    static ref CLI_NAME: String = env!("CARGO_PKG_NAME").to_string();
     static ref CLI_VERSION: String = env!("CARGO_PKG_VERSION").to_string();
     static ref CLI_AUTHOR: String = env!("CARGO_PKG_AUTHORS").to_string();
     static ref CLI_ABOUT: String = t!("cli.about");
