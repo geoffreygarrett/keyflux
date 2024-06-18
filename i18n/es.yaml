@@ -78,9 +78,6 @@ trace:
   flux_instance_finalized: "🔍 Instancia de flujo finalizada."
 
 cli:
-  name: "KeyFlux"
-  version: "0.1.2"
-  author: "Geoffrey Garrett <author@example.com>"
   about: "Una herramienta para sincronizar variables de entorno."
   locale:
     help: "Establecer el idioma para la CLI."

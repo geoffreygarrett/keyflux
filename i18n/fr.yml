@@ -78,9 +78,6 @@ trace:
   flux_instance_finalized: "🔍 Instance de flux finalisée."
 
 cli:
-  name: "KeyFlux"
-  version: "0.1.2"
-  author: "Geoffrey Garrett <author@example.com>"
   about: "Un outil pour synchroniser les variables d'environnement."
   env_files:
     help: "Liste de fichiers d'environnement à charger, séparés par des virgules."
