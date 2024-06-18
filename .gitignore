@@ -65,7 +65,7 @@ build/
 
 ## Tags
 tags
-tags.*
+#tags.*
 TAGS
 TAGS.*
 
