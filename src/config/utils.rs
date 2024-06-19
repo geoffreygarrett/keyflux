@@ -37,10 +37,6 @@ pub fn search_directory_for_configs(dir: &PathBuf, regex: &Regex) -> Result<Vec<
         }
     }
 
-    if matching_files.is_empty() {
-        return Err(ConfigError::NotFound);
-    }
-
     Ok(matching_files)
 }
 

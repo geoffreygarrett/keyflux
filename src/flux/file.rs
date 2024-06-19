@@ -157,6 +157,7 @@ impl Flux for FileFlux {
     async fn batch(&self, keys: &KeyCollection) -> Result<(), FluxError> {
         let manager = FormatManager::read().await;
         let mut existing_keys = manager.load_keys(&self.path, Some(&self.format))?;
+        // FIXME: Need another way of managing key structure types, this is breaking.
         let mut new_keys =  existing_keys.to_key_detail_collection();
         // error!("{:?} existing keys ", new_keys);
         // error!("{:?} keys ", keys);

@@ -114,7 +114,6 @@ impl ConfigHolder {
         }
 
 
-
         let default_paths = vec![
             dirs::home_dir(),
             Some(PathBuf::from(".")),
@@ -126,7 +125,6 @@ impl ConfigHolder {
         for base_path in default_paths {
             let matching_files = search_directory_for_configs(&base_path, &regex)?;
             if matching_files.len() == 1 {
-
                 return Self::from_file(&matching_files[0]).map_err(|err| ConfigError::FileReadError(err.to_string()));
             }
             if !matching_files.is_empty() {
