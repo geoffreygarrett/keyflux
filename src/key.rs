@@ -1,324 +1,160 @@
-use std::any::Any;
-use std::fmt;
+use std::cmp::Ordering;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use serde::{Serializer, Deserializer, Serialize, Deserialize};
-use serde::ser::SerializeMap;
-use serde::de::{MapAccess, Visitor};
-use std::marker::PhantomData;
+use serde_json::Value;
 
-/// Enum representing either a single string or a vector of strings.
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
-pub enum AttributeValue {
-    Single(String),
-    Multiple(Vec<String>),
-}
-
-/// A collection of key-value pairs, often used for metadata or additional attributes.
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
-pub struct Attributes {
-    inner: HashMap<String, AttributeValue>,
-}
-
-impl Attributes {
-    /// Creates a new, empty `Attributes` instance.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use keyflux::key::Attributes;
-    /// let attributes = Attributes::new();
-    /// assert!(attributes.is_empty());
-    /// ```
-    pub fn new() -> Self {
-        Self {
-            inner: HashMap::new(),
-        }
-    }
-
-    /// Inserts a key-value pair into the attributes.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use keyflux::key::{Attributes, AttributeValue};
-    /// let mut attributes = Attributes::new();
-    /// attributes.insert("key1", AttributeValue::Single("value1".to_string()));
-    /// assert_eq!(attributes.get("key1"), Some(&AttributeValue::Single("value1".to_string())));
-    /// ```
-    pub fn insert(&mut self, key: impl Into<String>, value: impl Into<AttributeValue>) -> Option<AttributeValue> {
-        self.inner.insert(key.into(), value.into())
-    }
-
-    /// Gets a reference to the value corresponding to the key.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use keyflux::key::{Attributes, AttributeValue};
-    /// let mut attributes = Attributes::new();
-    /// attributes.insert("key1", AttributeValue::Single("value1".to_string()));
-    /// assert_eq!(attributes.get("key1"), Some(&AttributeValue::Single("value1".to_string())));
-    /// assert_eq!(attributes.get("key2"), None);
-    /// ```
-    pub fn get(&self, key: &str) -> Option<&AttributeValue> {
-        self.inner.get(key)
-    }
-
-    /// Removes a key-value pair from the attributes.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use keyflux::key::{Attributes, AttributeValue};
-    /// let mut attributes = Attributes::new();
-    /// attributes.insert("key1", AttributeValue::Single("value1".to_string()));
-    /// assert_eq!(attributes.remove("key1"), Some(AttributeValue::Single("value1".to_string())));
-    /// assert!(attributes.get("key1").is_none());
-    /// ```
-    pub fn remove(&mut self, key: &str) -> Option<AttributeValue> {
-        self.inner.remove(key)
-    }
-
-    /// Checks if the attributes contain a key.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use keyflux::key::{Attributes, AttributeValue};
-    /// let mut attributes = Attributes::new();
-    /// attributes.insert("key1", AttributeValue::Single("value1".to_string()));
-    /// assert!(attributes.contains_key("key1"));
-    /// assert!(!attributes.contains_key("key2"));
-    /// ```
-    pub fn contains_key(&self, key: &str) -> bool {
-        self.inner.contains_key(key)
-    }
-
-    /// Returns the number of key-value pairs in the attributes.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use keyflux::key::{Attributes, AttributeValue};
-    /// let mut attributes = Attributes::new();
-    /// attributes.insert("key1", AttributeValue::Single("value1".to_string()));
-    /// assert_eq!(attributes.len(), 1);
-    /// ```
-    pub fn len(&self) -> usize {
-        self.inner.len()
-    }
-
-    /// Returns true if the attributes contain no key-value pairs.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use keyflux::key::Attributes;
-    /// let attributes = Attributes::new();
-    /// assert!(attributes.is_empty());
-    /// ```
-    pub fn is_empty(&self) -> bool {
-        self.inner.is_empty()
-    }
-
-    /// Clears all key-value pairs from the attributes.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use keyflux::key::{Attributes, AttributeValue};
-    /// let mut attributes = Attributes::new();
-    /// attributes.insert("key1", AttributeValue::Single("value1".to_string()));
-    /// attributes.clear();
-    /// assert!(attributes.is_empty());
-    /// ```
-    pub fn clear(&mut self) {
-        self.inner.clear()
-    }
-
-    /// Returns an iterator over the key-value pairs.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use keyflux::key::{Attributes, AttributeValue};
-    /// let mut attributes = Attributes::new();
-    /// attributes.insert("key1", AttributeValue::Single("value1".to_string()));
-    /// for (key, value) in attributes.iter() {
-    ///     println!("{}: {:?}", key, value);
-    /// }
-    /// ```
-    pub fn iter(&self) -> impl Iterator<Item=(&String, &AttributeValue)> {
-        self.inner.iter()
-    }
-
-    /// Merges another `Attributes` into this one, overwriting existing keys.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use keyflux::key::{Attributes, AttributeValue};
-    /// let mut attributes1 = Attributes::new();
-    /// attributes1.insert("key1", AttributeValue::Single("value1".to_string()));
-    ///
-    /// let mut attributes2 = Attributes::new();
-    /// attributes2.insert("key2", AttributeValue::Single("value2".to_string()));
-    ///
-    /// attributes1.merge(attributes2);
-    /// assert_eq!(attributes1.get("key2"), Some(&AttributeValue::Single("value2".to_string())));
-    /// ```
-    pub fn merge(&mut self, other: Attributes) {
-        self.inner.extend(other.inner);
-    }
-}
-
-impl Serialize for Attributes {
-    /// Serializes the `Attributes` into the given serializer.
-    ///
-    /// # Arguments
-    ///
-    /// * `serializer` - The serializer to use for serialization.
-    ///
-    /// # Returns
-    ///
-    /// A result containing either the serialized value or an error.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use keyflux::key::{Attributes, AttributeValue};
-    /// let mut attributes = Attributes::new();
-    /// attributes.insert("key1", AttributeValue::Single("value1".to_string()));
-    /// let serialized = serde_json::to_string(&attributes).unwrap();
-    /// ```
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let mut map = serializer.serialize_map(Some(self.inner.len()))?;
-        for (k, v) in &self.inner {
-            map.serialize_entry(k, v)?;
-        }
-        map.end()
-    }
-}
-
-impl<'de> Deserialize<'de> for Attributes {
-    /// Deserializes the `Attributes` from the given deserializer.
-    ///
-    /// # Arguments
-    ///
-    /// * `deserializer` - The deserializer to use for deserialization.
-    ///
-    /// # Returns
-    ///
-    /// A result containing either the deserialized `Attributes` or an error.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use keyflux::key::Attributes;
-    /// let json = r#"{"key1":"value1"}"#;
-    /// let attributes: Attributes = serde_json::from_str(json).unwrap();
-    /// ```
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        struct AttributesVisitor {
-            marker: PhantomData<fn() -> Attributes>,
-        }
-
-        impl<'de> Visitor<'de> for AttributesVisitor {
-            type Value = Attributes;
-
-            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                formatter.write_str("a map of strings to AttributeValue")
-            }
-
-            fn visit_map<M>(self, mut access: M) -> Result<Self::Value, M::Error>
-            where
-                M: MapAccess<'de>,
-            {
-                let mut map = HashMap::new();
-                while let Some((key, value)) = access.next_entry()? {
-                    map.insert(key, value);
-                }
-                Ok(Attributes { inner: map })
-            }
-        }
-
-        deserializer.deserialize_map(AttributesVisitor { marker: PhantomData })
-    }
-}
-
-impl fmt::Display for Attributes {
-    /// Formats the `Attributes` for display.
-    ///
-    /// # Arguments
-    ///
-    /// * `f` - The formatter to use for formatting.
-    ///
-    /// # Returns
-    ///
-    /// A result containing either the formatted string or an error.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use keyflux::key::{Attributes, AttributeValue};
-    /// let mut attributes = Attributes::new();
-    /// attributes.insert("key1", AttributeValue::Single("value1".to_string()));
-    /// println!("{}", attributes);
-    /// ```
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{{ ")?;
-        for (key, value) in &self.inner {
-            write!(f, "{}: {:?}, ", key, value)?;
-        }
-        write!(f, "}}")
-    }
-}
-
-/// Represents a key-value pair with additional attributes.
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
-pub struct Key {
+/// `KeyDetail` represents a detailed key with multiple attributes.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct KeyDetail {
     pub name: String,
     pub value: String,
-    pub attributes: Attributes,
+    pub description: Option<String>,
+    pub enabled: bool,
+    pub metadata: Option<HashMap<String, Value>>,
+    pub last_updated: Option<String>,
+    pub created_at: Option<String>,
+    pub tags: Option<Vec<String>>,
+}
+
+
+impl Ord for KeyDetail {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.name.cmp(&other.name).then_with(|| self.value.cmp(&other.value))
+    }
+}
+
+impl PartialOrd for KeyDetail {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+/// `KeyValue` represents a simple key-value pair.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+pub struct KeyValue {
+    pub name: String,
+    pub value: String,
+}
+
+/// `Key` is an enum that can hold different types of key representations.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+#[serde(untagged)]
+pub enum Key {
+    Value(String),
+    KeyDetail(KeyDetail),
+    KeyValue(KeyValue),
 }
 
 impl Key {
-    /// Creates a new `Key` instance.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use keyflux::key::{Key, Attributes};
-    /// let attributes = Attributes::new();
-    /// let key = Key::new("name", "value", attributes);
-    /// assert_eq!(key.name, "name");
-    /// assert_eq!(key.value, "value");
-    /// ```
-    pub fn new(name: impl Into<String>, value: impl Into<String>, attributes: Attributes) -> Self {
-        Self {
-            name: name.into(),
-            value: value.into(),
-            attributes,
+    pub fn key(&self) -> String {
+        match self {
+            Key::Value(value) => value.clone(),
+            Key::KeyDetail(detail) => detail.name.clone(),
+            Key::KeyValue(kv) => kv.name.clone(),
         }
     }
 
-    /// Converts the `Key` into a dynamic reference.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use keyflux::key::{Key, Attributes};
-    /// let attributes = Attributes::new();
-    /// let key = Key::new("name", "value", attributes);
-    /// let any_key = key.as_any();
-    /// ```
-    pub fn as_any(&self) -> &dyn Any {
-        self
+    pub fn value(&self) -> String {
+        match self {
+            Key::Value(value) => value.clone(),
+            Key::KeyDetail(detail) => detail.value.clone(),
+            Key::KeyValue(kv) => kv.value.clone(),
+        }
+    }
+
+    pub fn enabled(&self) -> bool {
+        match self {
+            Key::Value(_) => true,
+            Key::KeyDetail(detail) => detail.enabled,
+            Key::KeyValue(_) => true,
+        }
+    }
+}
+
+/// `KeyTransform` is a trait for transforming keys between different representations.
+pub trait KeyTransform {
+    fn to_key_detail(&self, name: Option<&str>) -> KeyDetail;
+    fn to_key_value(&self) -> KeyValue;
+    fn to_value(&self) -> String;
+}
+
+impl KeyTransform for KeyDetail {
+    fn to_key_detail(&self, _name: Option<&str>) -> KeyDetail {
+        self.clone()
+    }
+
+    fn to_key_value(&self) -> KeyValue {
+        KeyValue {
+            name: self.name.clone(),
+            value: self.value.clone(),
+        }
+    }
+
+    fn to_value(&self) -> String {
+        self.value.clone()
+    }
+}
+
+impl KeyTransform for KeyValue {
+    fn to_key_detail(&self, _name: Option<&str>) -> KeyDetail {
+        KeyDetail {
+            name: self.name.clone(),
+            value: self.value.clone(),
+            description: None,
+            enabled: true,
+            metadata: None,
+            last_updated: None,
+            created_at: None,
+            tags: None,
+        }
+    }
+
+    fn to_key_value(&self) -> KeyValue {
+        self.clone()
+    }
+
+    fn to_value(&self) -> String {
+        self.value.clone()
+    }
+}
+
+impl KeyTransform for Key {
+    fn to_key_detail(&self, name: Option<&str>) -> KeyDetail {
+        match self {
+            Key::Value(value) => KeyDetail {
+                name: name.unwrap_or("").to_string(),
+                value: value.clone(),
+                description: None,
+                enabled: true,
+                metadata: None,
+                last_updated: None,
+                created_at: None,
+                tags: None,
+            },
+            Key::KeyDetail(detail) => detail.clone(),
+            Key::KeyValue(kv) => kv.to_key_detail(None),
+        }
+    }
+
+    fn to_key_value(&self) -> KeyValue {
+        match self {
+            Key::Value(value) => KeyValue {
+                name: "".to_string(),
+                value: value.clone(),
+            },
+            Key::KeyDetail(detail) => KeyValue {
+                name: detail.name.clone(),
+                value: detail.value.clone(),
+            },
+            Key::KeyValue(kv) => kv.clone(),
+        }
+    }
+
+    fn to_value(&self) -> String {
+        match self {
+            Key::Value(value) => value.clone(),
+            Key::KeyDetail(detail) => detail.value.clone(),
+            Key::KeyValue(kv) => kv.value.clone(),
+        }
     }
 }
