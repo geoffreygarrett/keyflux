@@ -45,6 +45,7 @@ pub mod config;
 pub mod test_utils;
 pub mod file;
 pub mod command;
+mod re;
 
 include!(concat!(env!("OUT_DIR"), "/locales.rs"));
 

@@ -1,0 +1,2 @@
+-- postgres_delete.sql
+DELETE FROM public.env WHERE key IN ({{#each keys}} {{this}}{{#unless @last}},{{/unless}}{{/each}});

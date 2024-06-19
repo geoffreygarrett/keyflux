@@ -131,11 +131,46 @@
 //     Ok(())
 // }
 
+// use diff::Diff;
+// this will apply the specified derives on the generated 'ProjectMetaDiff' struct
+// #[diff(attr(
+//     #[derive(Debug, PartialEq)]
+// ))]
+// #[derive(Debug, Default, PartialEq, Diff)]
+// pub struct ProjectMeta {
+//     contributors: Vec<String>,
+//     combined_work_hours: usize,
+// }
+//
+// #[test]
+// fn test_apply() {
+//     let mut base = ProjectMeta::default();
+//     let contribution_a = ProjectMeta {
+//         contributors: vec!["Alice".into()],
+//         combined_work_hours: 3,
+//     };
+//     let contribution_b = ProjectMeta {
+//         contributors: vec!["Bob".into(), "Candice".into()],
+//         combined_work_hours: 10,
+//     };
+//     let expected = ProjectMeta {
+//         contributors: vec!["Bob".into(), "Candice".into(), "Alice".into()],
+//         combined_work_hours: 13,
+//     };
+//     let diff_a = base.diff(&contribution_a);
+//     let diff_b = base.diff(&contribution_b);
+//     base.apply(&diff_a);
+//     base.apply(&diff_b);
+//     assert_eq!(base, expected);
+// }
+
 use std::collections::BTreeSet;
 use std::io::{self};
 use std::path::PathBuf;
+use log::info;
 // use cli_table::{Table, Cell, print_stdout, format::{Justify, Border}, Style};
 use prettytable::{Table, Row, Cell, color, Attr};
+// use crate::cli::Commands::Diff;
 
 use crate::error::FluxError;
 use crate::file::format_manager::{FormatManager};
@@ -181,6 +216,10 @@ pub async fn diff(file1: &PathBuf, file2: &PathBuf) -> Result<(), std::io::Error
     let mut table = Table::new();
     table.add_row(row![bFw => t!("cli.diff.key"), t!("cli.diff.status")]);
     // table.add_row(row![bFw => "🔑 Key", "Status"]);
+
+    // let base = KeyCollection::new();
+    // let diff = keys1.diff(&keys2);
+    // info!("Differences in environment files: {:?}", diff);
 
     for key in all_keys {
         let status = match (keys1.get(key.as_str()), keys2.get(key.as_str())) {

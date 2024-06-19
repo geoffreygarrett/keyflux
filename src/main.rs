@@ -254,6 +254,12 @@ async fn main() {
                         std::process::exit(1);
                     }
                 }
+                Commands::Sub { input, output } => {
+                    if let Err(e) = keyflux::command::sub(input, output) {
+                        eprintln!("Error subbing files: {}", e);
+                        std::process::exit(1);
+                    }
+                }
             }
         }
     }

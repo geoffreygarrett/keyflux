@@ -44,9 +44,9 @@ static TYPE: &str = "type";
 //     }
 // }
 
-use erased_serde::{
-    Serializer as ErasedSerializer
-    , Deserializer as ErasedDeserializer};
+// use erased_serde::{
+//     Serializer as ErasedSerializer
+//     , Deserializer as ErasedDeserializer};
 use serde::ser::SerializeStruct;
 use serde_json::Value;
 

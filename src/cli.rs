@@ -113,6 +113,11 @@ pub enum Commands {
     },
     /// Sync environment variables from the configuration file
     Sync,
+    Sub {
+        input: Vec<PathBuf>,
+        #[arg(short, long)]
+        output: Option<PathBuf>,
+    },
 }
 
 #[derive(Debug, Clone, ValueEnum)]
