@@ -11,11 +11,11 @@ pub struct JsonAdapter;
 
 #[async_trait]
 impl FormatAdapter for JsonAdapter {
-    fn format_tag(&self) -> &str {
-        "json"
-    }
     fn default_file_name(&self) -> &str {
         "{name}.json"
+    }
+    fn format_tag(&self) -> &str {
+        "json"
     }
 
     fn path_valid(&self, path: &PathBuf) -> bool {

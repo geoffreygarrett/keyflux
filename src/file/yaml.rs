@@ -12,12 +12,11 @@ pub struct YamlAdapter;
 
 #[async_trait]
 impl FormatAdapter for YamlAdapter {
-
-    fn format_tag(&self) -> &str {
-        "yaml"
-    }
     fn default_file_name(&self) -> &str {
         "{name}.yaml"
+    }
+    fn format_tag(&self) -> &str {
+        "yaml"
     }
     fn path_valid(&self, path: &PathBuf) -> bool {
         PathBuf::from(path).extension().map_or(false, |ext| ext == "yaml" || ext == "yml")

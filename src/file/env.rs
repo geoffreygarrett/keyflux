@@ -59,12 +59,12 @@ fn format_system_time(time: SystemTime) -> String {
 
 #[async_trait]
 impl FormatAdapter for EnvAdapter {
-    fn format_tag(&self) -> &str {
-        "env"
-    }
-
     fn default_file_name(&self) -> &str {
         ".env.{{name}}"
+    }
+
+    fn format_tag(&self) -> &str {
+        "env"
     }
     fn path_valid(&self, path: &PathBuf) -> bool {
         // Compile the regex to match ".env", ".env.<ANY NAME>", and "<ANY NAME>.env"

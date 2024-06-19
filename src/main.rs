@@ -114,13 +114,12 @@ async fn process_env_config(env_config: &EnvConfig, config_path: &PathBuf) {
             trace!("{}: {}", "trace.loading_env_file", file_path.display());
             trace!("{}", t!("trace.loading_env_file", file = file_path.display()));
             let new_keys = manager.load_keys(&file_path, None).unwrap_or_else(|err| {
-
                 error!("{}: {}", t!("error.loading_env_file"), err.to_string());
                 std::process::exit(1);
             });
-            for key in new_keys.iter() {
+            new_keys.to_key_detail_collection().iter().for_each(|key| {
                 std::env::set_var(key.name(), key.value());
-            }
+            });
             keys.merge(new_keys);
         }
     }
@@ -132,7 +131,7 @@ use keyflux::command::sort::sort;
 use keyflux::command::sync::sync;
 use keyflux::command::convert::convert;
 use keyflux::file::format_manager::FormatManager;
-use keyflux::file::key_collection::KeyCollection;
+use keyflux::file::key_collection::{KeyCollection, KeyCollectionTransform};
 use keyflux::key::KeyDetail;
 // use keyflux::file::format_manager::FormatManager;
 

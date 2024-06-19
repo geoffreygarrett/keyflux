@@ -9,13 +9,12 @@ pub struct TomlAdapter;
 
 #[async_trait]
 impl FormatAdapter for TomlAdapter {
+    fn default_file_name(&self) -> &str {
+        "{name}.toml"
+    }
 
     fn format_tag(&self) -> &str {
         "toml"
-    }
-
-    fn default_file_name(&self) -> &str {
-        "{name}.toml"
     }
 
     fn path_valid(&self, path: &PathBuf) -> bool {
