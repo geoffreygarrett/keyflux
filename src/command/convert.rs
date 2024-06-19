@@ -17,7 +17,7 @@ use crate::file::format_manager::FormatManager;
 /// ```
 pub async fn convert(file: &PathBuf, fmt: &str) -> Result<(), Box<dyn std::error::Error>> {
     trace!("Starting the conversion process.");
-    let manager = FormatManager::instance_read().await;
+    let manager = FormatManager::read().await;
 
     // Load the keys from the input file.
     let keys = match manager.load_keys(file, None) {

@@ -8,7 +8,7 @@ use chrono::Utc;
 use serde_json::Value;
 use crate::error::FluxError;
 use crate::file::format_manager::FormatAdapter;
-use crate::file::key::{Key, KeyDetail, KeyTransform};
+use crate::key::{Key, KeyDetail, KeyTransform};
 use crate::file::key_collection::{KeyCollection, KeyCollectionMap, KeyCollectionTransform};
 
 pub struct PostmanAdapter;
@@ -24,11 +24,18 @@ struct PostmanEnvironment {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "lowercase")]
+pub enum PostmanVariableType {
+    Default,
+    Secret
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 struct PostmanVariable {
     key: String,
     value: String,
     #[serde(rename = "type")]
-    type_field: String,
+    type_field: PostmanVariableType,
     enabled: bool,
     description: Option<String>,
     metadata: Option<HashMap<String, Value>>,
@@ -44,13 +51,12 @@ impl FormatAdapter for PostmanAdapter {
         "postman"
     }
     fn default_file_name(&self) -> &str {
-        "{name}.json"
+        "{{name}}.json"
     }
 
-    // fn default_file_name(&self) -> &str {
-    //     ".env.{name}"
+    // fn filename_formats(&self) -> Vec<&str> {
+    //     vec!["(?:<name>\\.)?json"]
     // }
-
 
     fn path_valid(&self, path: &PathBuf) -> bool {
         PathBuf::from(path).extension().map_or(false, |ext| ext == "json")
@@ -59,44 +65,33 @@ impl FormatAdapter for PostmanAdapter {
     fn load_keys(&self, path: &PathBuf) -> Result<KeyCollection, FluxError> {
         let contents = std::fs::read_to_string(path)?;
         let postman_env: PostmanEnvironment = serde_json::from_str(&contents).map_err(FluxError::from)?;
-        let mut map = KeyCollectionMap::new();
+        let mut map = KeyCollection::new();
         for variable in postman_env.values {
-            map.insert(variable.key.clone(), Key::KeyDetail(KeyDetail {
+            map.insert(Key::KeyDetail(KeyDetail {
                 name: variable.key,
                 value: variable.value,
                 description: variable.description,
                 enabled: variable.enabled,
+                input: None,
                 metadata: variable.metadata,
                 last_updated: variable.last_updated,
                 created_at: variable.created_at,
                 tags: variable.tags,
             }));
         }
-        Ok(KeyCollection::Map(map))
+        Ok(map)
     }
 
     fn save_keys(&self, path: &PathBuf, keys: &KeyCollection) -> Result<(), FluxError> {
-        // let map: KeyCollection = match keys {
-        //     KeyCollection::Map(map) => map.to_key_detail_collection(),
-        //     KeyCollection::List(list) => {
-        //         list.iter()
-        //             .filter_map(|key| match key {
-        //                 Key::KeyDetail(detail) => Some((detail.name.clone(), detail.clone())),
-        //                 _ => None,
-        //             })
-        //             .collect()
-        //     }
-        // };
-
         let postman_env = PostmanEnvironment {
             id: Uuid::new_v4().to_string(),
             name: "Generated Environment".to_string(),
-            values: keys.to_key_detail_collection().iter().map(|(name, key)| {
-                let detail = key.to_key_detail(Some(&name));
+            values: keys.to_key_detail_collection().iter().map(|key| {
+                let detail = key.to_key_detail(Some(&key.name()));
                 PostmanVariable {
                     key: detail.name,
                     value: detail.value,
-                    type_field: "default".to_string(),
+                    type_field: PostmanVariableType::Default,
                     enabled: detail.enabled,
                     description: detail.description,
                     metadata: detail.metadata,

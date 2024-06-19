@@ -4,7 +4,7 @@ use crate::file::format_manager::{FormatManager};
 
 pub async fn sort(file: &PathBuf) -> Result<(), FluxError> {
     // Assume FormatManager::instance_read() provides a singleton instance for read operations.
-    let manager = FormatManager::instance_read().await;
+    let manager = FormatManager::read().await;
 
     // Load keys from the file. Ensure load_keys is async and awaited here.
     let mut keys = manager.load_keys(file, None)?;

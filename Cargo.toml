@@ -1,6 +1,6 @@
 [package]
 name = "keyflux"
-version = "0.1.10"
+version = "0.1.11"
 edition = "2021"
 description = "A CLI tool and library for synchronizing environment secrets across multiple platforms including local files, GitHub Secrets, Supabase Vault, and Vercel Secrets. It facilitates secure management and automation of sensitive data."
 license = "MIT"
@@ -65,6 +65,9 @@ diff = "0.1.13"
 indexmap = { version = "2.2.6", features = ["serde"] }
 dirs = "5.0.1"
 prettytable = "0.10"
+dialoguer = "0.11.0"
+erased-serde = "0.4.0"
+serde_valid = "0.22.0"
 
 [dev-dependencies]
 env_logger = "0.10"

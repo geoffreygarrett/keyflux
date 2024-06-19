@@ -149,7 +149,7 @@ use crate::file::key_collection::KeyCollection;
 /// # Returns
 /// Returns a `Result` containing the `KeyCollection` on success, or a `FluxError` on failure.
 async fn load_keys_from_file(file: &PathBuf) -> Result<KeyCollection, FluxError> {
-    let manager = FormatManager::instance_read().await;
+    let manager = FormatManager::read().await;
     manager.load_keys(file, None)
 }
 

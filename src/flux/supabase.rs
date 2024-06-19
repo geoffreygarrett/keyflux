@@ -2,6 +2,7 @@ use async_trait::async_trait;
 use reqwest::Client;
 use log::{info, error, warn};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 use crate::error::FluxError;
 use crate::traits::Flux;
@@ -10,6 +11,8 @@ use crate::api::supabase::upsert::SupabaseUpsert;
 // use crate::api::supabase::delete::SupabaseDelete;
 use crate::api::supabase::select::SupabaseSelect;
 use crate::api::traits::Fetch;
+use crate::file::key_collection::KeyCollection;
+use crate::flux::replace_vars_in_json;
 
 /// Represents a Supabase Flux for managing environment secrets.
 ///
@@ -53,12 +56,20 @@ use crate::api::traits::Fetch;
 ///     Ok(())
 /// }
 /// ```
+///
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct SupabaseFlux {
+pub struct SupabaseVariables {
     #[serde(rename = "ref")]
     pub ref_id: String,
     pub token: Option<String>,
 }
+
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct SupabaseFlux {
+    pub input: Option<Value>,
+}
+
 
 #[derive(Serialize, Deserialize, Debug)]
 struct TempSecret {
@@ -66,14 +77,21 @@ struct TempSecret {
     value: String,
 }
 
-
 #[async_trait]
 impl Flux for SupabaseFlux {
     /// Initializes the Supabase Flux by listing existing secrets in the project.
+
     async fn initialize(&self) -> Result<(), FluxError> {
+        // let key_input = key.input().clone();
+        let mut raw_input = self.input.clone().unwrap();
+        // let mut combined = merge_and_return_json(raw_input, key_input).unwrap();
+        replace_vars_in_json(&mut raw_input);
+        // info!("Key value: {:?}", key.value());
+        let input: SupabaseVariables = serde_json::from_value(raw_input).unwrap();
+
         let list_request = SupabaseSelect {
-            ref_id: self.ref_id.clone(),
-            token: self.token.clone(),
+            ref_id: input.ref_id.clone(),
+            token: input.token.clone(),
         };
 
         let client = Client::new();
@@ -107,16 +125,25 @@ impl Flux for SupabaseFlux {
 
     /// Processes a single key by calling the `batch` method with a single-element array.
     async fn single(&self, key: &Key) -> Result<(), FluxError> {
-        self.batch(&[key.clone()]).await
+        let mut keys = KeyCollection::new();
+        keys.insert(key.clone());
+        self.batch(&keys).await
     }
 
     /// Processes a batch of keys by upserting them as secrets in the Supabase project.
-    async fn batch(&self, keys: &[Key]) -> Result<(), FluxError> {
+    async fn batch(&self, keys: &KeyCollection) -> Result<(), FluxError> {
         let client = Client::new();
+        // let key_input = key.input().clone();
+        let mut raw_input = self.input.clone().unwrap();
+        // let mut combined = merge_and_return_json(raw_input, key_input).unwrap();
+        replace_vars_in_json(&mut raw_input);
+        // info!("Key value: {:?}", key.value());
+        let input: SupabaseVariables = serde_json::from_value(raw_input).unwrap();
+
         let filtered_keys: Vec<Key> = keys.iter()
             .filter_map(|key| {
-                if key.name.starts_with("SUPABASE_") {
-                    warn!("Secret name '{}' is not allowed to start with 'SUPABASE_'. Skipping this key.", key.name);
+                if key.name().starts_with("SUPABASE_") {
+                    warn!("Secret name '{}' is not allowed to start with 'SUPABASE_'. Skipping this key.", key.name());
                     None
                 } else {
                     Some(key.clone())
@@ -130,8 +157,8 @@ impl Flux for SupabaseFlux {
         }
 
         let upsert_request = SupabaseUpsert {
-            ref_id: self.ref_id.clone(),
-            token: self.token.clone(),
+            ref_id: input.ref_id.clone(),
+            token: input.token.clone(),
             keys: filtered_keys,
         };
 

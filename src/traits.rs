@@ -2,6 +2,8 @@ use async_trait::async_trait;
 use crate::error::FluxError;
 use std::collections::HashMap;
 use std::fmt::Debug;
+use serde::{Deserialize, Serialize};
+use crate::file::key_collection::KeyCollection;
 use crate::key::Key;
 
 /// A trait for defining a flexible synchronization interface.
@@ -15,7 +17,6 @@ use crate::key::Key;
 /// ```
 /// use async_trait::async_trait;
 /// use keyflux::traits::{Flux};
-/// use keyflux::key::Key;
 /// use keyflux::error::FluxError;
 ///
 /// #[derive(Debug, Clone)]
@@ -40,12 +41,12 @@ use crate::key::Key;
 /// }
 /// ```
 #[async_trait]
-pub trait Flux: Send + Sync + Debug {
+pub trait Flux: Send + Sync + Debug   {
     /// Initializes the flux instance.
     ///
     /// This method is intended for any setup or initialization logic required
     /// before the flux instance is used.
-    async fn initialize(&self) -> Result<(), FluxError> {
+    async fn initialize(& self) -> Result<(), FluxError> {
         Ok(())
     }
 
@@ -78,8 +79,11 @@ pub trait Flux: Send + Sync + Debug {
     /// # Arguments
     ///
     /// * `keys` - A slice of boxed environment variables to be processed.
-    async fn batch(&self, keys: &[Key]) -> Result<(), FluxError> {
-        let tasks = keys.iter().map(|key| self.single(key));
+    async fn batch(&self, keys: &KeyCollection) -> Result<(), FluxError> {
+        let tasks = keys.into_iter().map(|key| async {
+            self.single(key).await?;
+            Ok::<(), FluxError>(())
+        });
         let results = futures::future::join_all(tasks).await;
         for result in results {
             result?;
@@ -107,18 +111,19 @@ pub trait Flux: Send + Sync + Debug {
     /// # Arguments
     ///
     /// * `keys` - A slice of keys of the environment variables to check.
-    async fn check_batch(&self, keys: &[Key]) -> Result<Vec<(String, Option<String>)>, FluxError> {
-        let tasks = keys.iter().map(|key| async {
-            let value = self.check(key).await?;
-            Ok::<(String, Option<String>), FluxError>((key.name.clone(), value))
-        });
-        let results: Vec<Result<(String, Option<String>), FluxError>> = futures::future::join_all(tasks).await;
-        let mut state_map = HashMap::new();
-        for result in results {
-            let (key, value) = result?;
-            state_map.insert(key, value);
-        }
-        Ok(state_map.into_iter().collect())
+    // Your async function using `check_batch`
+    async fn check_batch(&self, keys: &KeyCollection) -> Result<Vec<(String, Option<String>)>, FluxError> {
+        // let tasks = keys.iter().map(|(name, key)| async {
+        //     let value = self.check(key).await?;
+        //     Ok::<(String, Option<String>), FluxError>((key.name().to_string(), value))
+        // });
+        // let results: Vec<Result<(String, Option<String>), FluxError>> = futures::future::join_all(tasks).await;
+        // let mut state_map = HashMap::new();
+        // for result in results {
+        //     let (key, value) = result?;
+        //     state_map.insert(key, value);
+        // }
+        Err(FluxError::NotImplementedError("check_batch".into()))
     }
 
     /// Reverts a single environment variable.
@@ -141,13 +146,14 @@ pub trait Flux: Send + Sync + Debug {
     /// # Arguments
     ///
     /// * `keys` - A slice of keys of the environment variables to revert.
-    async fn revert_batch(&self, keys: &[Key]) -> Result<(), FluxError> {
-        let tasks = keys.iter().map(|key| self.revert(key));
-        let results = futures::future::join_all(tasks).await;
-        for result in results {
-            result?;
-        }
-        Ok(())
+    async fn revert_batch(&self, keys: &KeyCollection) -> Result<(), FluxError> {
+        // let tasks = keys.iter().map(|name, key| self.revert(key));
+        // let results = futures::future::join_all(tasks).await;
+        // for result in results {
+        //     result?;
+        // }
+        // Ok(())
+        Err(FluxError::NotImplementedError("revert_batch".into()))
     }
 
     /// Calculates the difference between current and desired state for a single environment variable.
@@ -169,17 +175,18 @@ pub trait Flux: Send + Sync + Debug {
     /// # Arguments
     ///
     /// * `keys` - A slice of keys of the environment variables to calculate the differences for.
-    async fn diff_batch(&self, keys: &[Key]) -> Result<HashMap<String, String>, FluxError> {
-        let tasks = keys.iter().map(|key| async {
-            let diff = self.diff(key).await?;
-            Ok::<(String, String), FluxError>((key.name.clone(), diff))
-        });
-        let results: Vec<Result<(String, String), FluxError>> = futures::future::join_all(tasks).await;
-        let mut diff_map = HashMap::new();
-        for result in results {
-            let (key, diff) = result?;
-            diff_map.insert(key, diff);
-        }
-        Ok(diff_map)
+    async fn diff_batch(&self, keys: &KeyCollection) -> Result<HashMap<String, String>, FluxError> {
+        Err(FluxError::NotImplementedError("diff_batch".into()))
+        // let tasks = keys.iter().map(|name, key| async {
+        //     let diff = self.diff(key).await?;
+        //     Ok::<(String, String), FluxError>((key.name().clone(), diff))
+        // });
+        // let results: Vec<Result<(String, String), FluxError>> = futures::future::join_all(tasks).await;
+        // let mut diff_map = HashMap::new();
+        // for result in results {
+        //     let (key, diff) = result?;
+        //     diff_map.insert(key, diff);
+        // }
+        // Ok(diff_map)
     }
 }

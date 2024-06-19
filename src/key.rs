@@ -1,7 +1,9 @@
 use std::cmp::Ordering;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use regex::Regex;
 use serde_json::Value;
+
 
 /// `KeyDetail` represents a detailed key with multiple attributes.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -14,6 +16,8 @@ pub struct KeyDetail {
     pub last_updated: Option<String>,
     pub created_at: Option<String>,
     pub tags: Option<Vec<String>>,
+    // #[serde(flatten)]
+    pub input: Option<Value>,
 }
 
 
@@ -28,6 +32,13 @@ impl PartialOrd for KeyDetail {
         Some(self.cmp(other))
     }
 }
+
+
+//
+// pub enum ValueEnum {
+//     String(String),
+//     Template(String),
+// }
 
 /// `KeyValue` represents a simple key-value pair.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
@@ -45,10 +56,35 @@ pub enum Key {
     KeyValue(KeyValue),
 }
 
+
+// Define a trait for common key functionality
+// trait KeyTrait {
+//     fn key(&self) -> String;
+//     fn value(&self) -> String;
+// }
+
+// impl KeyTrait for KeyDetail {
+//     fn key(&self) -> String { self.name.clone() }
+//     fn value(&self) -> String { self.value.clone() }
+// }
+//
+// impl KeyTrait for KeyValue {
+//     fn key(&self) -> String { self.name.clone() }
+//     fn value(&self) -> String { self.value.clone() }
+// }
+
+
 impl Key {
-    pub fn key(&self) -> String {
+    pub fn input(&self) -> Option<Value> {
         match self {
-            Key::Value(value) => value.clone(),
+            Key::Value(_) => None,
+            Key::KeyDetail(detail) => detail.input.clone(),
+            Key::KeyValue(_) => None,
+        }
+    }
+    pub fn name(&self) -> String {
+        match self {
+            Key::Value(_) => panic!("Key::name() called on Key::Value"),
             Key::KeyDetail(detail) => detail.name.clone(),
             Key::KeyValue(kv) => kv.name.clone(),
         }
@@ -67,6 +103,76 @@ impl Key {
             Key::Value(_) => true,
             Key::KeyDetail(detail) => detail.enabled,
             Key::KeyValue(_) => true,
+        }
+    }
+
+    pub fn description(&self) -> Option<String> {
+        match self {
+            Key::Value(_) => None,
+            Key::KeyDetail(detail) => detail.description.clone(),
+            Key::KeyValue(_) => None,
+        }
+    }
+
+    pub fn metadata(&self) -> Option<&HashMap<String, Value>> {
+        match self {
+            Key::Value(_) => None,
+            Key::KeyDetail(detail) => detail.metadata.as_ref(),
+            Key::KeyValue(_) => None,
+        }
+    }
+
+    pub fn last_updated(&self) -> Option<&str> {
+        match self {
+            Key::Value(_) => None,
+            Key::KeyDetail(detail) => detail.last_updated.as_deref(),
+            Key::KeyValue(_) => None,
+        }
+    }
+
+    pub fn from_key_detail(detail: KeyDetail) -> Key {
+        Key::KeyDetail(detail)
+    }
+
+    pub fn from_key_value(kv: KeyValue) -> Key {
+        Key::KeyValue(kv)
+    }
+
+    pub fn has_shell_placeholder(&self) -> bool {
+        let re = Regex::new(r"\$\{[^\}]+\}").unwrap();
+        match self {
+            Key::Value(value) => re.is_match(value),
+            Key::KeyDetail(detail) => re.is_match(&detail.value),
+            Key::KeyValue(kv) => re.is_match(&kv.value),
+        }
+    }
+
+    pub fn with_value(&mut self, value: String) {
+        match self {
+            Key::Value(v) => *v = value,
+            Key::KeyDetail(detail) => detail.value = value,
+            Key::KeyValue(kv) => kv.value = value,
+        }
+    }
+
+    pub fn replace_shell_vars(&mut self, context: &HashMap<String, String>) {
+        let re = Regex::new(r"\$\{[^\}]+\}").unwrap();
+
+        let mut replace_fn = |caps: &regex::Captures| {
+            let key = &caps[0][2..caps[0].len() - 1];
+            context.get(key).cloned().unwrap_or_else(|| caps[0].to_string())
+        };
+
+        let mut replace_recursively = |value: &mut String| {
+            while re.is_match(value) {
+                *value = re.replace_all(value, &replace_fn).to_string();
+            }
+        };
+
+        match self {
+            Key::Value(value) => replace_recursively(value),
+            Key::KeyDetail(detail) => replace_recursively(&mut detail.value),
+            Key::KeyValue(kv) => replace_recursively(&mut kv.value),
         }
     }
 }
@@ -102,6 +208,7 @@ impl KeyTransform for KeyValue {
             value: self.value.clone(),
             description: None,
             enabled: true,
+            input: None,
             metadata: None,
             last_updated: None,
             created_at: None,
@@ -126,6 +233,7 @@ impl KeyTransform for Key {
                 value: value.clone(),
                 description: None,
                 enabled: true,
+                input: None,
                 metadata: None,
                 last_updated: None,
                 created_at: None,

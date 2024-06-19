@@ -4,6 +4,7 @@ use serde_yaml;
 use toml;
 use rust_i18n::t;
 
+
 /// Errors related to configuration handling in the application.
 ///
 /// This enum defines various errors that can occur while handling configuration files,
@@ -37,33 +38,54 @@ pub enum ConfigError {
     /// Error that occurs when the configuration is invalid.
     #[error("{0}")]
     InvalidConfig(String),
+
+    #[error("Failed to read configuration file: {0}")]
+    ReadError(#[from] std::io::Error),
+
+    #[error("Failed to parse configuration file: {0}")]
+    FileReadError(String),
+
+    #[error("Failed to parse configuration file: {0}")]
+    ParseError(#[from] serde_yaml::Error),
+
+    #[error("No configuration file found.")]
+    NotFound,
+
+    #[error("-c {0} did not point to a valid config file or directory containing a config file.")]
+    ConfigArgError(String),
+
+    #[error("Failed to select configuration file: {0}")]
+    SelectionError(String),
 }
 
-impl From<std::io::Error> for ConfigError {
-    /// Converts a `std::io::Error` into a `ConfigError::ReadFileError`.
-    ///
-    /// This implementation uses the `t!` macro to fetch the localized error message.
-    ///
-    /// # Arguments
-    ///
-    /// * `error` - The I/O error to be converted.
-    fn from(error: std::io::Error) -> Self {
-        ConfigError::ReadFileError(t!("errors.config.read_file_error", error = error.to_string()))
-    }
-}
+// Remove the manual implementation for From<std::io::Error>.
+// The #[from] attribute already handles this conversion automatically.
 
-impl From<serde_yaml::Error> for ConfigError {
-    /// Converts a `serde_yaml::Error` into a `ConfigError::ParseYamlError`.
-    ///
-    /// This implementation uses the `t!` macro to fetch the localized error message.
-    ///
-    /// # Arguments
-    ///
-    /// * `error` - The YAML parsing error to be converted.
-    fn from(error: serde_yaml::Error) -> Self {
-        ConfigError::ParseYamlError(t!("errors.config.parse_yaml_error", error = error.to_string()))
-    }
-}
+// impl From<std::io::Error> for ConfigError {
+//     /// Converts a `std::io::Error` into a `ConfigError::ReadFileError`.
+//     ///
+//     /// This implementation uses the `t!` macro to fetch the localized error message.
+//     ///
+//     /// # Arguments
+//     ///
+//     /// * `error` - The I/O error to be converted.
+//     fn from(error: std::io::Error) -> Self {
+//         ConfigError::ReadFileError(t!("errors.config.read_file_error", error = error.to_string()))
+//     }
+// }
+
+// impl From<serde_yaml::Error> for ConfigError {
+//     /// Converts a `serde_yaml::Error` into a `ConfigError::ParseYamlError`.
+//     ///
+//     /// This implementation uses the `t!` macro to fetch the localized error message.
+//     ///
+//     /// # Arguments
+//     ///
+//     /// * `error` - The YAML parsing error to be converted.
+//     fn from(error: serde_yaml::Error) -> Self {
+//         ConfigError::ParseYamlError(t!("errors.config.parse_yaml_error", error = error.to_string()))
+//     }
+// }
 
 impl From<serde_json::Error> for ConfigError {
     /// Converts a `serde_json::Error` into a `ConfigError::ParseJsonError`.

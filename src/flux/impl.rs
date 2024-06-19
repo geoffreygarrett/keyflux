@@ -1,5 +1,5 @@
 use log::trace;
-use serde::{Deserialize, Deserializer, de::Error as DeError};
+use serde::{Deserialize, Deserializer, de::Error as DeError, Serialize, Serializer};
 // use crate::config::utils::replace_env_vars;
 use crate::flux_registry::FLUX_REGISTRY;
 use crate::traits::Flux;
@@ -44,6 +44,13 @@ static TYPE: &str = "type";
 //     }
 // }
 
+use erased_serde::{
+    Serializer as ErasedSerializer
+    , Deserializer as ErasedDeserializer};
+use serde::ser::SerializeStruct;
+use serde_json::Value;
+
+
 /// Implements deserialization for `Box<dyn Flux>`.
 ///
 /// This implementation reconstructs the `Flux` type from its string representation and
@@ -54,53 +61,90 @@ static TYPE: &str = "type";
 ///
 /// Returns a deserialization error if the `Flux` type is unknown or if there is an error
 /// during the creation of the `Flux` instance.
+// impl<'de> Deserialize<'de> for Box<dyn Flux> {
+//     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+//     where
+//         D: Deserializer<'de>,
+//     {
+//         trace!("Deserializing Box<dyn Flux>");
+//         let value: serde_json::Value = serde::Deserialize::deserialize(deserializer)?;
+//
+//         //////////////////////////
+//         // TYPE
+//         //////////////////////////
+//         let type_name = value.get(TYPE)
+//             .and_then(serde_json::Value::as_str)
+//             .ok_or_else(|| DeError::missing_field(TYPE))?
+//             .to_string();
+//         trace!("Deserializing Flux type: {}", type_name);
+//
+//         //////////////////////////
+//         // ARGS
+//         //////////////////////////
+//         let args = value.get(ARGS)
+//             .ok_or_else(|| DeError::missing_field(ARGS))?;
+//
+//         trace!("Deserializing Flux {:?}: {:?}", type_name, args);
+//
+//         //////////////////////////
+//         let registry = FLUX_REGISTRY.lock().unwrap();
+//         trace!("Getting Flux constructor");
+//         let constructor = registry.creators.get(&type_name)
+//             .ok_or_else(|| DeError::custom("Unknown Flux type"))?;
+//
+//         trace!("Creating Flux instance");
+//         constructor(&args).map_err(|e| DeError::custom(e.to_string()))
+//     }
+// }
+
+
 impl<'de> Deserialize<'de> for Box<dyn Flux> {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
         trace!("Deserializing Box<dyn Flux>");
-        let value: serde_json::Value = serde::Deserialize::deserialize(deserializer)?;
+        let mut value: Value = serde::Deserialize::deserialize(deserializer)?;
 
-        //////////////////////////
-        // TYPE
-        //////////////////////////
         let type_name = value.get(TYPE)
-            .and_then(serde_json::Value::as_str)
-            .ok_or_else(|| DeError::missing_field(TYPE))?
+            .and_then(Value::as_str)
+            .ok_or_else(|| serde::de::Error::missing_field(TYPE))?
             .to_string();
         trace!("Deserializing Flux type: {}", type_name);
 
-        //////////////////////////
-        // ARGS
-        //////////////////////////
-        let args = value.get(ARGS)
-            .ok_or_else(|| DeError::missing_field(ARGS))?;
+        // Remove the type field from the JSON object to get the args
+        value.as_object_mut()
+            .ok_or_else(|| serde::de::Error::custom("Expected a JSON object"))?
+            .remove(TYPE);
 
-        // // Replace environment variables for args
-        // let args = args.as_object()
-        //     .ok_or_else(|| DeError::custom(format!("Expected an object for field {}", ARGS)))?
-        //     .iter()
-        //     .map(|(k, v)| {
-        //         let updated_value = match v.as_str() {
-        //             Some(s) => serde_json::Value::String(replace_env_vars(s)),
-        //             None => v.clone(), // If the value is not a string, leave it as is
-        //         };
-        //         (k.clone(), updated_value)
-        //     })
-        //     .collect::<serde_json::Map<String, serde_json::Value>>();
-        //
-        // let args_value = serde_json::Value::Object(args.clone());  // Clone args to use it later
+        trace!("Deserializing Flux {:?} with args: {:?}", type_name, value);
 
-        trace!("Deserializing Flux {:?}: {:?}", type_name, args);
-
-        //////////////////////////
         let registry = FLUX_REGISTRY.lock().unwrap();
         trace!("Getting Flux constructor");
         let constructor = registry.creators.get(&type_name)
-            .ok_or_else(|| DeError::custom("Unknown Flux type"))?;
+            .ok_or_else(|| serde::de::Error::custom("Unknown Flux type"))?;
 
         trace!("Creating Flux instance");
-        constructor(&args).map_err(|e| DeError::custom( e.to_string()))
+        constructor(&value).map_err(|e| serde::de::Error::custom(e.to_string()))
+    }
+}
+
+
+impl Serialize for Box<dyn Flux> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let value = serde_json::to_value(self).map_err(serde::ser::Error::custom)?;
+
+        if let Value::Object(map) = value {
+            let mut state = serializer.serialize_struct("Flux", map.len())?;
+            for (key, value) in map {
+                state.serialize_field("cow", &value)?;
+            }
+            state.end()
+        } else {
+            Err(serde::ser::Error::custom("Expected a JSON object"))
+        }
     }
 }

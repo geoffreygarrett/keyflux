@@ -1,5 +1,6 @@
+use std::ops::Index;
 use serde::{Deserialize, Serialize};
-use crate::file::key::{Key, KeyTransform};
+use crate::key::{Key, KeyTransform};
 
 /// `KeyCollectionTransform` is a trait for transforming collections of keys between different representations.
 pub trait KeyCollectionTransform {
@@ -14,7 +15,6 @@ pub trait KeyCollectionTransform {
 use indexmap::IndexMap;
 
 /// `KeyCollectionMap` is a type alias for a `HashMap` where the key is a `String` and the value is a `Key`.
-pub type KeyCollectionMap = IndexMap<String, Key>;
 //
 // impl Serialize for KeyCollectionMap {
 //     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -47,7 +47,6 @@ pub type KeyCollectionMap = IndexMap<String, Key>;
 ///
 // #[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
 // pub struct KeyCollectionList(Vec<Key>);
-pub type KeyCollectionList = Vec<Key>;
 
 // impl Sort for KeyCollection {
 //     fn sort(&mut self) {
@@ -61,61 +60,91 @@ pub type KeyCollectionList = Vec<Key>;
 //             }
 //         }
 //     }
-// }
+
+pub type KeyCollectionMap = IndexMap<String, Key>;
+
+pub type KeyCollectionList = Vec<Key>;
 
 
 impl IntoIterator for KeyCollection {
-    type Item = (String, Key);
-    type IntoIter = Box<dyn Iterator<Item=(String, Key)>>;
+    type Item = Key;
+    type IntoIter = Box<dyn Iterator<Item=Key>>;
 
     fn into_iter(self) -> Self::IntoIter {
         match self {
-            KeyCollection::Map(map) => {
-                let map_iter = map.into_iter().map(|(k, v)| (k.clone(), v));
-                Box::new(map_iter)
-            }
-            KeyCollection::List(list) => {
-                let list_iter = list.into_iter().enumerate().map(|(index, key)| {
-                    let key_str = index.to_string();
-                    (key_str, key)
-                });
-                Box::new(list_iter)
-            }
+            KeyCollection::Map(map) => Box::new(map.into_iter().map(|(_, v)| v)),
+            KeyCollection::List(list) => Box::new(list.into_iter()),
+        }
+    }
+}
+
+impl<'a> IntoIterator for &'a KeyCollection {
+    type Item = &'a Key;
+    type IntoIter = Box<dyn Iterator<Item=&'a Key> + 'a>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        match self {
+            KeyCollection::Map(map) => Box::new(map.values()),
+            KeyCollection::List(list) => Box::new(list.iter()),
         }
     }
 }
 
 pub struct KeyCollectionIter<'a> {
-    inner: Box<dyn Iterator<Item=(String, &'a Key)> + 'a>,
+    inner: Box<dyn Iterator<Item=&'a Key> + 'a>,
 }
 
 impl<'a> Iterator for KeyCollectionIter<'a> {
-    type Item = (String, &'a Key);
+    type Item = &'a Key;
 
     fn next(&mut self) -> Option<Self::Item> {
         self.inner.next()
     }
 }
 
+// impl<'a> Index<usize> for KeyCollectionIter<'a> {
+//     type Output = &'a Key;
+//
+//     fn index(&self, index: usize) -> &Self::Output {
+//         let (_, key) = self.inner
+//             .clone()  // Cloning to avoid consuming the iterator
+//             .nth(index)
+//             .expect("Index out of bounds or key not found");
+//
+//         key
+//     }
+// }
+
+
 impl<'a> KeyCollection {
     pub fn iter(&'a self) -> KeyCollectionIter<'a> {
         match self {
-            KeyCollection::Map(map) => {
-                let map_iter = map.iter().map(|(k, v)| (k.clone(), v));
-                KeyCollectionIter {
-                    inner: Box::new(map_iter),
-                }
-            }
-            KeyCollection::List(list) => {
-                let list_iter = list.iter().enumerate().map(|(index, key)| {
-                    let key_str = index.to_string();
-                    (key_str, key)
-                });
-                KeyCollectionIter {
-                    inner: Box::new(list_iter),
-                }
-            }
+            KeyCollection::Map(map) => KeyCollectionIter {
+                inner: Box::new(map.values()),
+            },
+            KeyCollection::List(list) => KeyCollectionIter {
+                inner: Box::new(list.iter()),
+            },
         }
+    }
+}
+
+impl From<KeyCollectionMap> for KeyCollection {
+    fn from(map: KeyCollectionMap) -> Self {
+        KeyCollection::Map(map)
+    }
+}
+
+impl From<KeyCollectionList> for KeyCollection {
+    fn from(list: KeyCollectionList) -> Self {
+        KeyCollection::List(list)
+    }
+}
+
+impl FromIterator<Key> for KeyCollection {
+    fn from_iter<T: IntoIterator<Item=Key>>(iter: T) -> Self {
+        let keys: Vec<Key> = iter.into_iter().collect();
+        KeyCollection::List(keys.into())
     }
 }
 
@@ -153,22 +182,66 @@ pub enum KeyCollection {
 impl KeyCollection {
     pub fn sort_by(&mut self) {
         match self {
-            KeyCollection::List(list) => list.sort_by(|a, b| a.key().cmp(&b.key())),
+            KeyCollection::List(list) => list.sort_by(|a, b| a.name().cmp(&b.name())),
             KeyCollection::Map(map) => map.sort_by(|a, _b, c, _d| a.cmp(c))
         }
     }
 
+    pub fn new() -> Self {
+        KeyCollection::List(Vec::new())
+    }
+
     pub fn keys(&self) -> Vec<String> {
         match self {
-            KeyCollection::List(list) => list.iter().map(|kv| kv.key()).collect(),
+            KeyCollection::List(list) => list.iter().map(|kv| kv.name()).collect(),
             KeyCollection::Map(map) => map.keys().cloned().collect(),
         }
     }
 
     pub fn get(&self, key: &str) -> Option<&Key> {
         match self {
-            KeyCollection::List(list) => list.iter().find(|kv| kv.key() == key),
+            KeyCollection::List(list) => list.iter().find(|kv| kv.name() == key),
             KeyCollection::Map(map) => map.get(key),
+        }
+    }
+
+    pub fn insert(&mut self, key: Key) {
+        match self {
+            KeyCollection::List(list) => list.push(key),
+            KeyCollection::Map(map) => {
+                map.insert(key.name(), key);
+            }
+        }
+    }
+
+    pub fn upsert(&mut self, key: Key) {
+        match self {
+            KeyCollection::List(list) => {
+                if let Some(index) = list.iter().position(|kv| kv.name() == key.name()) {
+                    list[index] = key;
+                } else {
+                    list.push(key);
+                }
+            }
+            KeyCollection::Map(map) => {
+                map.insert(key.name(), key);
+            }
+        }
+    }
+
+    pub fn merge(&mut self, other: KeyCollection) {
+        match (self, other) {
+            (KeyCollection::List(list1), KeyCollection::List(list2)) => list1.extend(list2),
+            (KeyCollection::Map(map1), KeyCollection::Map(map2)) => map1.extend(map2.into_iter()),
+            (KeyCollection::List(list), KeyCollection::Map(map)) => {
+                let map_list: Vec<Key> = map.into_iter().map(|(_, key)| key).collect();
+                list.extend(map_list);
+            }
+            (KeyCollection::Map(map), KeyCollection::List(list)) => {
+                for key in list {
+                    map.insert(key.name(), key);
+                }
+            }
         }
     }
 }
@@ -188,9 +261,50 @@ impl KeyCollection {
 //     }
 // }
 
+// Implement Index trait for KeyCollectionIter<'_>
 
 // Eq , PartialEq , Ord and PartialOrd
 // impl
+
+
+impl<'a> IntoIterator for &'a mut KeyCollection {
+    type Item = &'a mut Key;
+    type IntoIter = Box<dyn Iterator<Item=Self::Item> + 'a>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        match self {
+            KeyCollection::Map(map) => Box::new(map.values_mut()),
+            KeyCollection::List(list) => Box::new(list.iter_mut()),
+        }
+    }
+}
+
+pub struct KeyCollectionIterMut<'a> {
+    inner: Box<dyn Iterator<Item=&'a mut Key> + 'a>,
+}
+
+impl<'a> Iterator for KeyCollectionIterMut<'a> {
+    type Item = &'a mut Key;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.inner.next()
+    }
+}
+
+impl<'a> KeyCollection {
+    /// Returns a mutable iterator over the keys.
+    pub fn iter_mut(&'a mut self) -> KeyCollectionIterMut<'a> {
+        match self {
+            KeyCollection::Map(map) => KeyCollectionIterMut {
+                inner: Box::new(map.values_mut()),
+            },
+            KeyCollection::List(list) => KeyCollectionIterMut {
+                inner: Box::new(list.iter_mut()),
+            },
+        }
+    }
+}
+
 
 impl KeyCollectionTransform for KeyCollectionMap {
     fn to_key_detail_collection(&self) -> KeyCollection {

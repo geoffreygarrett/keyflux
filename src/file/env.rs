@@ -11,7 +11,7 @@ use regex::Regex;
 use serde_json::{json, Value};
 use crate::error::FluxError;
 use crate::file::format_manager::FormatAdapter;
-use crate::file::key::{Key, KeyDetail};
+use crate::key::{Key, KeyDetail};
 use crate::file::key_collection::{KeyCollection, KeyCollectionMap};
 use crate::file::metadata::extract_file_metadata;
 use crate::file::parser::env::{LineContent, EnvParser, parse_line, format_line};
@@ -77,39 +77,38 @@ impl FormatAdapter for EnvAdapter {
     fn load_keys(&self, path: &PathBuf) -> Result<KeyCollection, FluxError> {
         let contents = std::fs::read_to_string(path)?;
         let parser = EnvParser::parse(&contents);
-        let mut map = KeyCollectionMap::new();
-        // let file_metadata = extract_file_metadata(path)?;
-        // let mut metadata = HashMap::new();
-        // metadata.insert("file".to_string(), file_metadata);
+        let mut collection = KeyCollection::new();
         for entry in parser.entries {
             match entry {
-                LineContent::KeyValue(key, value, comment) => {
+                LineContent::KeyValue(name, value, comment) => {
                     let key_detail = KeyDetail {
-                        name: key.clone(),
+                        name,
                         value,
                         description: comment,
                         enabled: true,
+                        input: None,
                         metadata: None,
                         last_updated: None,
                         created_at: None,
                         tags: None,
                     };
-                    map.insert(key.clone(), Key::KeyDetail(key_detail));
+                    collection.insert(Key::KeyDetail(key_detail));
                 }
                 LineContent::Comment(comment) => {
                     match parse_line(&comment, None) {
-                        Ok(LineContent::KeyValue(key, value, comment)) => {
+                        Ok(LineContent::KeyValue(name, value, comment)) => {
                             let key_detail = KeyDetail {
-                                name: key.clone(),
+                                name,
                                 value,
                                 description: comment,
                                 enabled: false,
+                                input: None,
                                 metadata: None,
                                 last_updated: None,
                                 created_at: None,
                                 tags: None,
                             };
-                            map.insert(key.clone(), Key::KeyDetail(key_detail));
+                            collection.insert(Key::KeyDetail(key_detail));
                         }
                         Err(_) | Ok(_) => {}
                     }
@@ -117,21 +116,21 @@ impl FormatAdapter for EnvAdapter {
                 LineContent::BlankLine => {}
             }
         }
-        Ok(KeyCollection::Map(map))
+        Ok(collection)
     }
     fn save_keys(&self, path: &PathBuf, keys: &KeyCollection) -> Result<(), FluxError> {
         let mut lines: Vec<LineContent> = vec![];
         // log each key
-        for (k, key) in keys.iter() {
-            info!("Key: {} => {} [{}]", k.to_string().cyan(),
+        for key in keys.iter() {
+            info!("Key: {} => {} [enabled={}]", key.name().to_string().cyan(),
                 redact_value(&key.value()).yellow()
                 , key.enabled().to_string().yellow());
         }
         keys
             .iter()
-            .for_each(|(k, key)| match key {
+            .for_each(|key| match key {
                 Key::Value(value) => {
-                    lines.push(LineContent::KeyValue(k.clone(), value.clone(), None))
+                    lines.push(LineContent::KeyValue(key.value().clone(), value.clone(), None))
                 }
                 Key::KeyDetail(detail) => {
                     if !detail.enabled {

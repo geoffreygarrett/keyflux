@@ -1,6 +1,11 @@
 use regex::Regex;
 use lazy_static::lazy_static;
 use log::warn;
+use std::fs;
+use std::path::{PathBuf};
+use thiserror::Error;
+use dialoguer::{theme::ColorfulTheme, Select};
+use crate::error::config::ConfigError;
 
 lazy_static! {
     static ref RE: Regex = Regex::new(r"\$\{([^}]+)}").unwrap();
@@ -15,3 +20,43 @@ pub fn replace_env_vars(input: &str) -> String {
         })
     }).to_string()
 }
+
+pub fn search_directory_for_configs(dir: &PathBuf, regex: &Regex) -> Result<Vec<PathBuf>, ConfigError> {
+    let mut matching_files = vec![];
+
+    if let Ok(entries) = fs::read_dir(dir) {
+        for entry in entries {
+            if let Ok(entry) = entry {
+                let path = entry.path();
+                if let Some(filename) = path.file_name().and_then(|s| s.to_str()) {
+                    if regex.is_match(filename) {
+                        matching_files.push(path);
+                    }
+                }
+            }
+        }
+    }
+
+    if matching_files.is_empty() {
+        return Err(ConfigError::NotFound);
+    }
+
+    Ok(matching_files)
+}
+
+pub fn select_config_file(files: Vec<PathBuf>) -> Result<PathBuf, ConfigError> {
+    let choices: Vec<String> = files.iter()
+        .map(|path| path.display().to_string())
+        .collect();
+
+    let selection = Select::with_theme(&ColorfulTheme::default())
+        .with_prompt("Multiple configuration files found. Please select one:")
+        .items(&choices)
+        .default(0)
+        .interact()
+        .map_err(|err| ConfigError::SelectionError(format!("{}", err)))?;
+
+    Ok(files[selection].clone())
+}
+
+

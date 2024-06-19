@@ -560,6 +560,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "dialoguer"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "658bce805d770f407bc62102fca7c2c64ceef2fbcb2b8bd19d2765ce093980de"
+dependencies = [
+ "console",
+ "shell-words",
+ "tempfile",
+ "thiserror",
+ "zeroize",
+]
+
+[[package]]
 name = "diff"
 version = "0.1.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -740,6 +753,16 @@ name = "equivalent"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5443807d6dff69373d433ab9ef5378ad8df50ca6298caf15de6e52e24aaf54d5"
+
+[[package]]
+name = "erased-serde"
+version = "0.4.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "24e2389d65ab4fab27dc2a5de7b191e1f6617d1f1c8855c0dc569c94a4cbb18d"
+dependencies = [
+ "serde",
+ "typeid",
+]
 
 [[package]]
 name = "errno"
@@ -1499,6 +1522,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "itertools"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "413ee7dfc52ee1a4949ceeb7dbc8a33f2d6c088194d9f922fb8318faf1f01186"
+dependencies = [
+ "either",
+]
+
+[[package]]
 name = "itoa"
 version = "1.0.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1525,7 +1557,7 @@ dependencies = [
 
 [[package]]
 name = "keyflux"
-version = "0.1.9"
+version = "0.1.10"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1534,11 +1566,13 @@ dependencies = [
  "clap 4.5.7",
  "clap_complete",
  "colored",
+ "dialoguer",
  "diff",
  "difftastic",
  "dirs",
  "dotenv",
  "env_logger",
+ "erased-serde",
  "futures",
  "im",
  "indexmap 2.2.6",
@@ -1553,6 +1587,7 @@ dependencies = [
  "rust-i18n",
  "serde",
  "serde_json",
+ "serde_valid",
  "serde_yaml",
  "sodiumoxide",
  "tempdir",
@@ -2003,6 +2038,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "paste"
+version = "1.0.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
+
+[[package]]
 name = "percent-encoding"
 version = "2.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2204,6 +2245,30 @@ dependencies = [
  "lazy_static",
  "term",
  "unicode-width",
+]
+
+[[package]]
+name = "proc-macro-error"
+version = "1.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "da25490ff9892aab3fcf7c36f08cfb902dd3e71ca0f9f9517bea02a73a5ce38c"
+dependencies = [
+ "proc-macro-error-attr",
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+ "version_check",
+]
+
+[[package]]
+name = "proc-macro-error-attr"
+version = "1.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a1be40180e52ecc98ad80b184934baf3d0d29f979574e439af5a55274b35f869"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "version_check",
 ]
 
 [[package]]
@@ -2739,6 +2804,51 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde_valid"
+version = "0.22.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "35f8289977182dcfc6b9b24741d13518d9b0e526663f5c216ec19b78b4f4b608"
+dependencies = [
+ "indexmap 2.2.6",
+ "itertools 0.13.0",
+ "num-traits",
+ "once_cell",
+ "paste",
+ "regex",
+ "serde",
+ "serde_json",
+ "serde_valid_derive",
+ "serde_valid_literal",
+ "thiserror",
+ "unicode-segmentation",
+]
+
+[[package]]
+name = "serde_valid_derive"
+version = "0.22.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "76494699e524fbb9aa55558f61d4e5f75e7361af23403203e7ef416031327d41"
+dependencies = [
+ "itertools 0.13.0",
+ "paste",
+ "proc-macro-error",
+ "proc-macro2",
+ "quote",
+ "strsim 0.11.1",
+ "syn 2.0.66",
+]
+
+[[package]]
+name = "serde_valid_literal"
+version = "0.22.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9213812e673eaafd029a0247dcdf8532228f9da3fe50f0a58558e71eb17dd0e7"
+dependencies = [
+ "paste",
+ "regex",
+]
+
+[[package]]
 name = "serde_yaml"
 version = "0.8.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2773,6 +2883,12 @@ dependencies = [
  "cpufeatures",
  "digest 0.10.7",
 ]
+
+[[package]]
+name = "shell-words"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "24188a676b6ae68c3b2cb3a01be17fbf7240ce009799bb56d5b1409051e78fde"
 
 [[package]]
 name = "signal-hook"
@@ -3370,6 +3486,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6af6ae20167a9ece4bcb41af5b80f8a1f1df981f6391189ce00fd257af04126a"
 
 [[package]]
+name = "typeid"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "059d83cc991e7a42fc37bd50941885db0888e34209f8cfd9aab07ddec03bc9cf"
+
+[[package]]
 name = "typenum"
 version = "1.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3401,6 +3523,12 @@ name = "unicode-properties"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e4259d9d4425d9f0661581b804cb85fe66a4c631cadd8f490d1c13a35d5d9291"
+
+[[package]]
+name = "unicode-segmentation"
+version = "1.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d4c87d22b6e3f4a18d4d40ef354e97c90fcb14dd91d7dc0aa9d8a1172ebf7202"
 
 [[package]]
 name = "unicode-width"
@@ -3916,6 +4044,12 @@ dependencies = [
  "syn 2.0.66",
  "synstructure",
 ]
+
+[[package]]
+name = "zeroize"
+version = "1.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ced3678a2879b30306d323f4542626697a464a97c0a07c9aebf7ebca65cd4dde"
 
 [[package]]
 name = "zerovec"

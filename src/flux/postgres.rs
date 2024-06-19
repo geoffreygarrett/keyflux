@@ -10,6 +10,7 @@ use crate::api::supabase::upsert::SupabaseUpsert;
 // use crate::api::supabase::delete::SupabaseDelete;
 use crate::api::supabase::select::SupabaseSelect;
 use crate::api::traits::Fetch;
+use crate::file::key_collection::KeyCollection;
 
 /// Represents a Supabase Flux for managing environment secrets.
 ///
@@ -107,16 +108,18 @@ impl Flux for SupabaseFlux {
 
     /// Processes a single key by calling the `batch` method with a single-element array.
     async fn single(&self, key: &Key) -> Result<(), FluxError> {
-        self.batch(&[key.clone()]).await
+        let mut keys = KeyCollection::new();
+        keys.insert(key.clone());
+        self.batch(&keys).await
     }
 
     /// Processes a batch of keys by upserting them as secrets in the Supabase project.
-    async fn batch(&self, keys: &[Key]) -> Result<(), FluxError> {
+    async fn batch(&self, keys: &KeyCollection) -> Result<(), FluxError> {
         let client = Client::new();
         let filtered_keys: Vec<Key> = keys.iter()
             .filter_map(|key| {
-                if key.name.starts_with("SUPABASE_") {
-                    warn!("Secret name '{}' is not allowed to start with 'SUPABASE_'. Skipping this key.", key.name);
+                if key.name().starts_with("SUPABASE_") {
+                    warn!("Secret name '{}' is not allowed to start with 'SUPABASE_'. Skipping this key.", key.name());
                     None
                 } else {
                     Some(key.clone())

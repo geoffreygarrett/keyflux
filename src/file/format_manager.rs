@@ -2,99 +2,27 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use async_trait::async_trait;
 use std::sync::Arc;
+use std::vec;
 use lazy_static::lazy_static;
 use regex::Regex;
 use tokio::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
 use crate::error::FluxError;
 use crate::file::env::EnvAdapter;
 use crate::file::json::JsonAdapter;
-use crate::file::key_collection::KeyCollection;
+use crate::file::key_collection::{KeyCollection, KeyCollectionTransform};
 use crate::file::postman::PostmanAdapter;
 use crate::file::toml::TomlAdapter;
 use crate::file::yaml::YamlAdapter;
 
-type GlobalFormatManager = Arc<RwLock<FormatManager>>;
+type GlobalFormatManager = RwLock<FormatManager>;
 
 lazy_static! {
     /// Global instance of FormatManager using lazy_static and RwLock for thread safety.
     ///
     /// This instance is used to manage different format adapters for loading and saving key collections.
-    pub static ref FORMAT_MANAGER: GlobalFormatManager = Arc::new(RwLock::new(FormatManager::new()));
+    static ref FORMAT_MANAGER: GlobalFormatManager = RwLock::new(FormatManager::new());
 }
 
-// lazy_static! {
-//     /// Global instance of FormatManager using lazy_static and Arc for thread safety.
-//     pub static ref FORMAT_MANAGER: Arc<RwLock<FormatManager>> = Arc::new(RwLock::new(FormatManager::new()));
-// }
-
-/// Function to acquire the FormatManager instance for reading operations.
-///
-/// This function acquires a read lock on the FormatManager, allowing multiple tasks to read data concurrently.
-///
-/// # Arguments
-///
-/// * `f` - A closure that takes a reference to FormatManager and returns a value of type R.
-///
-/// # Returns
-///
-/// Returns a Result containing the result of the closure `f`, or a FluxError if there was an error acquiring the lock.
-///
-/// # Example
-///
-/// ```
-/// use keyflux::file::format_manager::{FORMAT_MANAGER, with_format_manager};
-/// use keyflux::error::FluxError;
-///
-/// async fn example_usage(file_path: &str) -> Result<(), FluxError> {
-///     let keys = with_format_manager(|manager| {
-///         manager.load_keys(file_path)
-///     }).await?;
-///
-///     // Process keys...
-///
-///     Ok(())
-/// }
-/// ```
-// pub(crate) async fn with_format_manager<R, Fut>(f: impl FnOnce(&FormatManager) -> Fut + Send) -> Result<R, FluxError>
-// where
-//     Fut: Future<Output=Result<R, FluxError>> + Send,
-// {
-//     let manager = FORMAT_MANAGER.read().await;
-//     f(&*manager).await
-// }
-
-/// Function to acquire the FormatManager instance for writing operations.
-///
-/// This function acquires a write lock on the FormatManager, ensuring exclusive access for mutation operations.
-///
-/// # Arguments
-///
-/// * `f` - A closure that takes a mutable reference to FormatManager and returns a Result<T, FluxError>.
-///
-/// # Returns
-///
-/// Returns a Result containing the result of the closure `f`, or a FluxError if there was an error acquiring the lock or executing the closure.
-///
-/// # Example
-///
-/// ```
-/// use keyflux::file::format_manager::{FORMAT_MANAGER, with_format_manager, with_format_manager_mut};
-/// use keyflux::error::FluxError;
-///
-/// async fn example_usage(file_path: &str) -> Result<(), FluxError> {
-///     let keys = with_format_manager(|manager| {
-///         manager.load_keys(file_path)
-///     }).await?;
-///
-///     keys.sort();
-///
-///     with_format_manager_mut(|manager| {
-///         manager.save_keys(file_path, keys)
-///     }).await?;
-///
-///     Ok(())
-/// }
-/// ```
 pub async fn with_format_manager_mut<F, T>(f: F) -> Result<T, FluxError>
 where
     F: FnOnce(&mut FormatManager) -> Result<T, FluxError>,
@@ -160,6 +88,7 @@ pub trait FormatAdapter {
     fn can_handle(&self, path: &PathBuf) -> bool {
         self.path_valid(path)
     }
+    // fn filename_formats(&self) -> Vec<&str>;
 }
 
 /// Manages different format adapters for loading and saving key collections.
@@ -183,16 +112,17 @@ impl FormatManager {
         FormatManager { adapters }
     }
 
-    pub async fn instance_read() -> RwLockReadGuard<'static, FormatManager> {
-        return FORMAT_MANAGER.read().await;
+    pub async fn read() -> RwLockReadGuard<'static, FormatManager> {
+        FORMAT_MANAGER.read().await
     }
 
-    pub async fn instance_write() -> RwLockWriteGuard<'static, FormatManager> {
-        return FORMAT_MANAGER.write().await;
+    pub async fn write() -> RwLockWriteGuard<'static, FormatManager> {
+        FORMAT_MANAGER.write().await
     }
 
     pub fn get_new_file_name(&self, extension: &str, file_name: Option<&str>) -> String {
-        let adapter = self.adapters.iter().find(|adapter| adapter.default_file_name().contains(extension)).unwrap();
+        let adapter = self.adapters.iter().find(|adapter| adapter.format_tag().contains(extension)).unwrap();
+        // let adapter = self.adapters.iter().find(|adapter| adapter.default_file_name().contains(extension)).unwrap();
         let pattern = adapter.default_file_name();
         let placeholders = Placeholder::extract_placeholders(pattern);
         let mut variables = HashMap::new();
@@ -212,7 +142,8 @@ impl FormatManager {
     /// Loads keys from a file using the appropriate adapter.
     pub fn load_keys(&self, path: &PathBuf, fmt: Option<&str>) -> Result<KeyCollection, FluxError> {
         let adapter = self.get_adapter_by_path(path).ok_or_else(|| FluxError::UnsupportedFormat(format!("Unsupported format for file: {}", path.to_str().unwrap())))?;
-        adapter.load_keys(path)
+        let keys = adapter.load_keys(path);
+        Ok(keys.unwrap().to_key_detail_collection())
     }
 
     /// Saves keys to a file using the appropriate adapter.
@@ -229,22 +160,6 @@ impl FormatManager {
             }
         }
     }
-
-    /// Adds a new format adapter to the manager.
-    // pub fn add_adapter(&mut self, adapter: Box<dyn FormatAdapter + Send + Sync>) {
-    //     self.adapters.push(adapter);
-    //     // After adding, sort adapters by priority (higher priority first)
-    //     self.adapters.sort_by_key(|a| a.priority());
-    // }
-    // // New method to abstract away the locking logic
-    // pub async fn with_manager<F, Fut, R>(f: F) -> Result<R, FluxError>
-    // where
-    //     F: FnOnce(&FormatManager) -> Fut,
-    //     Fut: Future<Output=Result<R, FluxError>>,
-    // {
-    //     let manager = FORMAT_MANAGER.read().await;
-    //     f(&manager).await
-    // }
 
 
     pub fn acquire_manager<R, F>(&self, f: F) -> Result<R, FluxError>

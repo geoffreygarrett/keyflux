@@ -1,6 +1,6 @@
 use reqwest::{Client, Response};
 use async_trait::async_trait;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::env;
 // use log::debug;
@@ -11,19 +11,19 @@ use crate::error::FluxError;
 
 
 //
-// #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
-// pub enum VariableType {
-//     #[serde(rename = "system")]
-//     System,
-//     #[serde(rename = "secret")]
-//     Secret,
-//     #[serde(rename = "encrypted")]
-//     Encrypted,
-//     #[serde(rename = "plain")]
-//     Plain,
-//     #[serde(rename = "sensitive")]
-//     Sensitive,
-// }
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum VariableType {
+    #[serde(rename = "system")]
+    System,
+    #[serde(rename = "secret")]
+    Secret,
+    #[serde(rename = "encrypted")]
+    Encrypted,
+    #[serde(rename = "plain")]
+    Plain,
+    #[serde(rename = "sensitive")]
+    Sensitive,
+}
 
 
 /// Represents a request to upsert an environment variable in a Vercel project.
@@ -31,7 +31,7 @@ use crate::error::FluxError;
 /// This structure encapsulates all necessary parameters for making an API request to Vercel to
 /// either create or update an environment variable. It includes optional fields for further
 /// specification, such as git branch or environment targets.
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Deserialize)]
 pub struct VercelEnvironmentUpsert {
     /// Unique identifier or name of the Vercel project.
     pub id_or_name: String,
@@ -44,7 +44,7 @@ pub struct VercelEnvironmentUpsert {
     pub value: String,
     /// Type of the variable, such as 'secret' or 'plain'.
     #[serde(rename = "type")]
-    pub var_type: String,
+    pub var_type: VariableType,
     // pub var_type: VariableType,
     /// List of environments (e.g., production, development) where the variable should apply.
     pub target: Vec<String>,
