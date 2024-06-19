@@ -143,7 +143,7 @@ impl FormatManager {
     pub fn load_keys(&self, path: &PathBuf, fmt: Option<&str>) -> Result<KeyCollection, FluxError> {
         let adapter = self.get_adapter_by_path(path).ok_or_else(|| FluxError::UnsupportedFormat(format!("Unsupported format for file: {}", path.to_str().unwrap())))?;
         let keys = adapter.load_keys(path);
-        Ok(keys.unwrap().to_key_detail_collection())
+        Ok(keys.unwrap())
     }
 
     /// Saves keys to a file using the appropriate adapter.
