@@ -1,4 +1,0 @@
--- postgres_upsert.hbs
-INSERT INTO public.env (key, value) VALUES
-{{#each key_values}} ({{this.key}}, {{this.value}}){{#unless @last}},{{/unless}}{{/each}}
-ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;

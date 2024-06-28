@@ -1,2 +1,0 @@
--- postgres_select.hbs
-SELECT value FROM public.env WHERE key IN ({{#each keys}} {{this}}{{#unless @last}},{{/unless}}{{/each}});
