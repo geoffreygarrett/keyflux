@@ -49,6 +49,7 @@ build/
 /dist/
 /unicode-downloads
 /target
+**/target/*
 /src/bootstrap/target
 /src/tools/x/target
 # Created by default with `src/ci/docker/run.sh`
@@ -85,3 +86,4 @@ tests/rustdoc-gui/src/**.lock
 
 
 # Before adding new lines, see the comment at the top.
+.dev

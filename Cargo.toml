@@ -1,74 +1,14 @@
-[package]
-name = "keyflux"
-version = "0.1.15"
-edition = "2021"
-description = "A CLI tool and library for synchronizing environment secrets across multiple platforms including local files, GitHub Secrets, Supabase Vault, and Vercel Secrets. It facilitates secure management and automation of sensitive data."
-license = "MIT"
-build = "build.rs"
+# /Users/geoffreygarrett/Repositories/nsri-link/packages/keyflux/Cargo.toml
 
-# Exclude these files and directories from the package
-exclude = [
-    "**/.DS_Store",
-    "/ci",
-    "images/",
-    ".*",
-    "/target",
-    "output*",
-    "text.txt"
+[workspace]
+members = [
+    "keyflux_macros",
+    "keyflux_curl",
+    "keyflux", "keyflux_postgres",
 ]
 
-## Include these files and directories in the package
-#include = ["/src", "COPYRIGHT", "/examples", "!/examples/big_example"]
 
-[features]
-wasm = ["wasm-bindgen", "wasm-bindgen-futures", "wasm-logger"]
+resolver = "1"
 
-
-[dependencies]
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-serde_yaml = "0.8"
-yaml-rust = "0.4.5"
-reqwest = { version = "0.12.4", features = ["blocking", "json"] }
-log = "0.4"
-env_logger = "0.10"
-
-clap = { version = "4.5.7", features = ["derive"] }
-dotenv = "0.15.0"
-tokio = { version = "1", features = ["full"] }
-thiserror = "1.0"
-async-trait = "0.1.51"
-futures = "0.3"
-notify = "6.1.1"
-toml = "0.8.14"
-sodiumoxide = "0.2.7"
-anyhow = "1.0"
-wasm-bindgen = { version = "0.2.92", optional = true }
-wasm-bindgen-futures = { version = "0.4.23", optional = true }
-wasm-logger = { version = "0.2.0", optional = true }
-colored = "2.1.0"
-base64 = "0.22.1"
-lazy_static = "1.4.0"
-rust-i18n = "=1.2.2"
-im = "15.1.0"
-regex = "1.9.6"
-tempdir = "0.3.7"
-tempfile = "3.10.1"
-chrono = "0.4.38"
-indicatif = "0.17.8"
-postgres = "0.17.2"
-tokio-postgres = "0.7.10"
-uuid = { version = "1.8.0", features = ["v4"] }
-difftastic = "0.58.0"
-clap_complete = "4.5.5"
-#diff = "0.1.13"
-indexmap = { version = "2.2.6", features = ["serde"] }
-dirs = "5.0.1"
-prettytable = "0.10"
-dialoguer = "0.11.0"
-#diff-struct = "0.5.3"
-glob = "0.3.1"
-
-[dev-dependencies]
-env_logger = "0.11.3"
-test-case = "3.3.1"
+# Optionally, specify some default features
+#default = ["curl", "macro"]

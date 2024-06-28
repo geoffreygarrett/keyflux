@@ -1,0 +1,4 @@
+key2: value2
+another_list:
+  - nested_item1
+  - nested_item2

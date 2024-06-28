@@ -1,0 +1,11 @@
+WHITESPACE = _{ " " | "\t" | "\n" | "\r" }
+
+query = { item ~ ("," ~ item)* }
+item = { "*" | table_def }
+table_def = { identifier ~ (":" ~ identifier)? ~ "(" ~ body ~ ")" }
+body = { item ~ ("," ~ item)* }
+identifier = { (ASCII_ALPHANUMERIC | "_")+ }
+
+source = { "source" ~ identifier ~ (":" ~ identifier)? }
+join_clause = { "join" ~ identifier ~ (":" ~ identifier)? ~ "on" ~ identifier ~ "=" ~ identifier }
+where_clause = { "where" ~ identifier ~ "=" ~ identifier }

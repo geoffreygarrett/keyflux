@@ -1,0 +1,98 @@
+errors:
+  config:
+    read_file_error: "Error al leer el archivo: %{error}"
+    parse_yaml_error: "Error al analizar YAML: %{error}"
+    parse_json_error: "Error al analizar JSON: %{error}"
+    parse_toml_error: "Error al analizar TOML: %{error}"
+    env_var_error: "Variable de entorno no encontrada: %{error}"
+    unknown_flux_type: "Tipo de flujo desconocido: %{error}"
+    invalid_config: "Configuración inválida"
+
+  flux:
+    http_request_error: "La solicitud HTTP falló: %{error}"
+    unauthorized_error: "Acceso no autorizado: %{error}"
+    invalid_key_id: "ID de clave inválido"
+    invalid_key: "Clave inválida"
+    decode_key_error: "Error al decodificar la clave"
+    create_public_key_error: "Error al crear la clave pública"
+    get_public_key_error: "Error al obtener la clave pública"
+    io_error: "Error de E/S: %{error}"
+    serialize_error: "Error de serialización: %{error}"
+    unsupported_format: "Formato de archivo no compatible"
+    not_implemented_error: "No implementado: %{error}"
+    flux_failed: "La operación de flujo falló: %{error}"
+    invalid_nonce: "Nonce inválido"
+    invalid_ciphertext: "Cifrado inválido"
+    decryption_failed: "Descifrado fallido"
+    invalid_utf8: "UTF-8 inválido"
+    vercel:
+      expected_key: "Se esperaba la clave `vercel` en el archivo de configuración"
+  key:
+    key_not_found: "Clave no encontrada: %{error}"
+    invalid_key: "Clave inválida: %{error}"
+    resolve_key_error: "Error al resolver la clave: %{error}"
+    unsupported_key_type: "Tipo de clave no compatible: %{error}"
+    io_error: "Error de E/S: %{error}"
+
+loading:
+  file: "Cargando archivo de entorno: %{file}"
+
+error:
+  unable_read_file: "No se puede leer el archivo"
+  json_format: "Error de formato JSON"
+  yaml_format: "Error de formato JSON"
+  toml_format: "Error de formato TOML"
+  failed_load_env_file: "❌ Error al cargar el archivo .env: %{file}"
+  unsupported_file_format: "⚠️ Formato de archivo de entorno no compatible para %{file}"
+  failed_reload_config: "❌ Error al recargar la configuración: %{error}"
+  watch_error: "❌ Error de vigilancia: %{error}"
+  failed_sync_secrets: "❌ Error al sincronizar secretos: %{error}"
+  load_config: "❌ Error al cargar la configuración: %{error}"
+  sync_secrets: "❌ Error al sincronizar secretos: %{error}"
+
+info:
+  setting_env_var: "Configurando variable de entorno: %{name}=[OCULTO]"
+  secrets_synced: "✅ Secretos sincronizados con éxito."
+  secrets_synced_reload: "✅ Secretos sincronizados con éxito después de la recarga."
+  using_direct_value: "🏷️ Usando valor directo proporcionado para la clave '%{key}'."
+  fluxing_key: "🔑 Fluyendo la clave: %{key} con valor: ******"
+
+warn:
+  key_not_resolved: "⚠️ No se pudo resolver la clave '%{key}'."
+
+trace:
+  creating_file_flux: "Creando flujo de archivo"
+  env_config: "env_config: %{env_config}"
+  loading_env_file: "🔄 Cargando variables de entorno desde el archivo: %{file}"
+  parsed_cli_args: "Argumentos de línea de comandos analizados: %{cli}"
+  loaded_config: "Configuración cargada"
+  starting_secret_sync: "Iniciando la sincronización de secretos."
+  config_file_changed: "⚙️ Archivo de configuración cambiado. Recargando..."
+  reloaded_config: "Configuración recargada"
+  unhandled_event: "Evento no manejado: %{event}"
+  starting_sync: "Iniciando sincronización"
+  loading_config_file: "🔄 Cargando archivo de configuración: %{file}"
+  processing_flux_config: "🔍 Procesando configuración de flujo: %{flux}"
+  flux_instance_initialized: "🔍 Instancia de flujo inicializada."
+  flux_instance_batched: "🔍 Instancia de flujo por lotes."
+  flux_instance_finalized: "🔍 Instancia de flujo finalizada."
+
+cli:
+  about: "Una herramienta para sincronizar variables de entorno."
+  locale:
+    help: "Establecer el idioma para la CLI."
+  env_files:
+    help: "Lista separada por comas de archivos de entorno a cargar."
+  config_file:
+    help: "Ruta al archivo de configuración."
+  watch:
+    help: "Vigilar cambios en el archivo de configuración y recargar automáticamente."
+  log_level:
+    help: "Establecer el nivel de registro."
+  diff:
+    key: "🔑 Clave"
+    status: "Estado"
+    identical: "✔ Idéntico"
+    varies: "≠ Varía"
+    only_in_file1: "✘ Solo en el archivo1"
+    only_in_file2: "✘ Solo en el archivo2"

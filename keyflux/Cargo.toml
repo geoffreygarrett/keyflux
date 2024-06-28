@@ -1,0 +1,83 @@
+# /Users/geoffreygarrett/Repositories/nsri-link/packages/keyflux/keyflux/Cargo.toml
+
+[package]
+name = "keyflux"
+version = "0.1.15"
+edition = "2021"
+description = "A CLI tool and library for synchronizing environment secrets across multiple platforms including local files, GitHub Secrets, Supabase Vault, and Vercel Secrets. It facilitates secure management and automation of sensitive data."
+license = "MIT"
+build = "build.rs"
+
+# Exclude these files and directories from the package
+exclude = [
+    "**/.DS_Store",
+    "/ci",
+    "images/",
+    ".*",
+    "/target",
+    "output*",
+    "text.txt"
+]
+
+# Include these files and directories in the package
+#include = ["/src", "COPYRIGHT", "/examples", "!/examples/big_example"]
+
+[features]
+wasm = ["wasm-bindgen", "wasm-bindgen-futures", "wasm-logger"]
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.8"
+yaml-rust = "0.4.5"
+reqwest = { version = "0.12.4", features = ["blocking", "json"] }
+log = "0.4"
+env_logger = "0.10"
+
+clap = { version = "4.5.7", features = ["derive"] }
+dotenv = "0.15.0"
+tokio = { version = "1", features = ["full"] }
+thiserror = "1.0"
+async-trait = "0.1.51"
+futures = "0.3"
+notify = "6.1.1"
+toml = "0.8.14"
+sodiumoxide = "0.2.7"
+anyhow = "1.0"
+wasm-bindgen = { version = "0.2.92", optional = true }
+wasm-bindgen-futures = { version = "0.4.23", optional = true }
+wasm-logger = { version = "0.2.0", optional = true }
+colored = "2.1.0"
+base64 = "0.22.1"
+lazy_static = "1.4.0"
+rust-i18n = "=1.2.2"
+im = "15.1.0"
+regex = "1.9.6"
+tempdir = "0.3.7"
+tempfile = "3.10.1"
+chrono = "0.4.38"
+indicatif = "0.17.8"
+postgres = "0.17.2"
+tokio-postgres = "0.7.10"
+uuid = { version = "1.8.0", features = ["v4"] }
+clap_complete = "4.5.5"
+indexmap = { version = "2.2.6", features = ["serde"] }
+dirs = "5.0.1"
+prettytable = "0.10"
+dialoguer = "0.11.0"
+glob = "0.3.1"
+typetag = "0.2.16"
+quote = "1.0.36"
+syn = { version = "2.0.66", features = ["parsing", "printing", "extra-traits"] }
+keyflux_macros = { path = "../keyflux_macros" }
+schemars = "0.8.21"
+
+[dev-dependencies]
+env_logger = "0.11.3"
+test-case = "3.3.1"
+
+#[profile.dev]
+#rustflags = ["-A warnings"]
+#
+#[profile.release]
+#rustflags = ["-A warnings"]
