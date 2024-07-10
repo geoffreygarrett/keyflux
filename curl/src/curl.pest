@@ -1,0 +1,81 @@
+// Handling whitespace, newlines, and escape sequences
+ws              = _{ " " | "\t" }
+newline         = _{ "\r\n" | "\n" | "\r" }
+escaped_newline = _{ "\\" ~ newline }
+escaped_char    = _{ "\\" ~ ANY }
+slash           = _{ "\\" ~ ws* ~ newline+ }
+
+// String handling with Handlebars support
+single_quoted       = _{ "'" ~ single_quoted_inner ~ "'" }
+single_quoted_inner =  { (!"'" ~ (handlebars_expression | ANY))* }
+double_quoted       = _{ "\"" ~ double_quoted_inner ~ "\"" }
+double_quoted_inner =  { (!"\"" ~ (handlebars_expression | ANY))* }
+
+// Handlebars expression handling
+handlebars_expression =  { "{{" ~ handlebars_inner ~ "}}" }
+handlebars_inner      = _{ (!("}}") ~ ANY)* }
+
+// Define ANY_NON_NEWLINE to exclude newline characters
+ANY_NON_NEWLINE = { !(newline | ws) ~ (escaped_char | ANY) }
+URL_CHAR        = { !ws ~ !"{" ~ !"}" ~ ANY_NON_NEWLINE }
+
+// Non-whitespace characters excluding braces and newlines
+none_ws = { (!ws ~ !"{" ~ !"}" ~ !"?" ~ ANY)+ }
+
+// Protocol handling (http or https)
+protocol = @{ "http" ~ "s"? }
+
+// Domain handling (including subdomains)
+none_ws_domain =  { (!ws ~ !"{" ~ !"}" ~ !"/" ~ ANY)+ }
+domain         = @{ none_ws_domain+ }
+
+// Path segment handling (including dynamic segments)
+path_segment = { (handlebars_expression | none_ws)+ }
+path         = { ("/" ~ path_segment)+ }
+
+// Define none_ws to allow URL-safe characters, excluding delimiters like '=', '&', and whitespace
+none_ws2 = _{ (!ws ~ !"=" ~ !"&" ~ !"?") ~ ANY }
+
+// Query parameter handling refined to accurately parse typical URL query strings
+query_param_key = _{ none_ws2 }
+query_param_value = _{ none_ws2 }
+query_param     =  { query_param_key+ ~ "=" ~ query_param_value+ }
+// Ensure that there is at least one character on both sides of '='
+query_params    =  { "?" ~ query_param ~ ("&" ~ query_param)* }
+// Allow for multiple query parameters separated by '&'
+
+// query_param = @{ (handlebars_expression | none_ws) ~ "=" ~ (handlebars_expression | none_ws) }
+
+// Full URL handling
+url_plain = { protocol ~ "://" ~ domain ~ path ~ (query_params)? }
+url       = { single_quoted | double_quoted | url_plain }
+
+// cURL command options
+option = _{ method_option | header_option | location_option | body_option | auth_option | form_option | compressed_option | get_option }
+
+method_option = _{ ("-X" | "--request") ~ ws+ ~ method }
+method        = @{ none_ws }
+
+header_option = _{ ("-H" | "--header") ~ ws+ ~ header }
+header        =  { single_quoted | double_quoted | none_ws }
+
+location_option = _{ ("-L" | "--location") ~ ws+ ~ location }
+location        =  { single_quoted | double_quoted | none_ws }
+
+body_option = _{ ("-d" | "--data") ~ ws+ ~ body }
+body        =  { single_quoted | double_quoted | none_ws }
+
+auth_option = _{ "-u" ~ ws+ ~ auth }
+auth        =  { single_quoted | double_quoted | none_ws }
+
+form_option = _{ ("-F" | "--form") ~ ws+ ~ form_data }
+form_data   =  { single_quoted | double_quoted | none_ws }
+
+compressed_option = _{ "--compressed" }
+get_option        = _{ "-G" }
+
+wss = _{ ws* ~ slash* ~ ws* }
+
+input = _{
+    SOI ~ "curl" ~ wss ~ (option ~ wss)* ~ url? ~ (wss ~ option ~ wss)* ~ ws* ~ EOI
+}

@@ -1,0 +1,20 @@
+{
+  "id": "8ac6ad96-78e9-4d3e-be9c-db249e8658b1",
+  "name": "Generated Environment",
+  "values": [
+    {
+      "key": "KEY",
+      "value": "VALUE",
+      "type": "default",
+      "enabled": true,
+      "description": null,
+      "metadata": null,
+      "last_updated": null,
+      "created_at": null,
+      "tags": null
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2024-07-10T12:03:41.515707646+00:00",
+  "_postman_exported_using": "keyflux"
+}

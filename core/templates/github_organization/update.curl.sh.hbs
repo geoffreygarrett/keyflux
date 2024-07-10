@@ -1,0 +1,12 @@
+curl -L \
+  -X PATCH \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer {{arg "token" required=true}}" \
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  https://api.github.com/orgs/{{arg "org" required=true}}/actions/variables/{{arg "variable_name" required=true}} \
+  -d '{
+    "name":"{{arg "username" required=true}}",
+    "value":"{{arg "value" required=true}}",
+    "visibility":"{{arg "visibility" required=true}}"{{#if (eq (arg "visibility") "selected")}},
+    "selected_repository_ids":{{arg "selected_repository_ids" default="[]"}}{{/if}}
+  }'

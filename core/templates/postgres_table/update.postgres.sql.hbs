@@ -1,0 +1,8 @@
+-- postgres_update.hbs
+UPDATE public.env
+SET value = CASE key
+{{#each key_values}}
+    WHEN {{this.key}} THEN {{this.value}}
+{{/each}}
+END
+WHERE key IN ({{#each key_values}} {{this.key}}{{#unless @last}},{{/unless}}{{/each}});
