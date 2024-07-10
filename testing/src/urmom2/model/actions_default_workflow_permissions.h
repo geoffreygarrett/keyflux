@@ -1,0 +1,32 @@
+/*
+ * actions_default_workflow_permissions.h
+ *
+ * The default workflow permissions granted to the GITHUB_TOKEN when running workflows.
+ */
+
+#ifndef _actions_default_workflow_permissions_H_
+#define _actions_default_workflow_permissions_H_
+
+#include <string.h>
+#include "../external/cJSON.h"
+#include "../include/list.h"
+#include "../include/keyValuePair.h"
+#include "../include/binary.h"
+
+typedef struct actions_default_workflow_permissions_t actions_default_workflow_permissions_t;
+
+
+// Enum  for actions_default_workflow_permissions
+
+typedef enum { github_v3_rest_api_actions_default_workflow_permissions__NULL = 0, github_v3_rest_api_actions_default_workflow_permissions__read, github_v3_rest_api_actions_default_workflow_permissions__write } github_v3_rest_api_actions_default_workflow_permissions__e;
+
+char* actions_default_workflow_permissions_actions_default_workflow_permissions_ToString(github_v3_rest_api_actions_default_workflow_permissions__e actions_default_workflow_permissions);
+
+github_v3_rest_api_actions_default_workflow_permissions__e actions_default_workflow_permissions_actions_default_workflow_permissions_FromString(char* actions_default_workflow_permissions);
+
+//cJSON *actions_default_workflow_permissions_actions_default_workflow_permissions_convertToJSON(github_v3_rest_api_actions_default_workflow_permissions__e actions_default_workflow_permissions);
+
+//github_v3_rest_api_actions_default_workflow_permissions__e actions_default_workflow_permissions_actions_default_workflow_permissions_parseFromJSON(cJSON *actions_default_workflow_permissionsJSON);
+
+#endif /* _actions_default_workflow_permissions_H_ */
+

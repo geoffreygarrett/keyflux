@@ -1,0 +1,60 @@
+#ifndef actions_list_repo_organization_secrets_200_response_TEST
+#define actions_list_repo_organization_secrets_200_response_TEST
+
+// the following is to include only the main from the first c file
+#ifndef TEST_MAIN
+#define TEST_MAIN
+#define actions_list_repo_organization_secrets_200_response_MAIN
+#endif // TEST_MAIN
+
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include "../external/cJSON.h"
+
+#include "../model/actions_list_repo_organization_secrets_200_response.h"
+actions_list_repo_organization_secrets_200_response_t* instantiate_actions_list_repo_organization_secrets_200_response(int include_optional);
+
+
+
+actions_list_repo_organization_secrets_200_response_t* instantiate_actions_list_repo_organization_secrets_200_response(int include_optional) {
+  actions_list_repo_organization_secrets_200_response_t* actions_list_repo_organization_secrets_200_response = NULL;
+  if (include_optional) {
+    actions_list_repo_organization_secrets_200_response = actions_list_repo_organization_secrets_200_response_create(
+      56,
+      list_createList()
+    );
+  } else {
+    actions_list_repo_organization_secrets_200_response = actions_list_repo_organization_secrets_200_response_create(
+      56,
+      list_createList()
+    );
+  }
+
+  return actions_list_repo_organization_secrets_200_response;
+}
+
+
+#ifdef actions_list_repo_organization_secrets_200_response_MAIN
+
+void test_actions_list_repo_organization_secrets_200_response(int include_optional) {
+    actions_list_repo_organization_secrets_200_response_t* actions_list_repo_organization_secrets_200_response_1 = instantiate_actions_list_repo_organization_secrets_200_response(include_optional);
+
+	cJSON* jsonactions_list_repo_organization_secrets_200_response_1 = actions_list_repo_organization_secrets_200_response_convertToJSON(actions_list_repo_organization_secrets_200_response_1);
+	printf("actions_list_repo_organization_secrets_200_response :\n%s\n", cJSON_Print(jsonactions_list_repo_organization_secrets_200_response_1));
+	actions_list_repo_organization_secrets_200_response_t* actions_list_repo_organization_secrets_200_response_2 = actions_list_repo_organization_secrets_200_response_parseFromJSON(jsonactions_list_repo_organization_secrets_200_response_1);
+	cJSON* jsonactions_list_repo_organization_secrets_200_response_2 = actions_list_repo_organization_secrets_200_response_convertToJSON(actions_list_repo_organization_secrets_200_response_2);
+	printf("repeating actions_list_repo_organization_secrets_200_response:\n%s\n", cJSON_Print(jsonactions_list_repo_organization_secrets_200_response_2));
+}
+
+int main() {
+  test_actions_list_repo_organization_secrets_200_response(1);
+  test_actions_list_repo_organization_secrets_200_response(0);
+
+  printf("Hello world \n");
+  return 0;
+}
+
+#endif // actions_list_repo_organization_secrets_200_response_MAIN
+#endif // actions_list_repo_organization_secrets_200_response_TEST

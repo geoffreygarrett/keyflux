@@ -1,0 +1,48 @@
+/*
+ * actions_set_github_actions_permissions_repository_request.h
+ *
+ * 
+ */
+
+#ifndef _actions_set_github_actions_permissions_repository_request_H_
+#define _actions_set_github_actions_permissions_repository_request_H_
+
+#include <string.h>
+#include "../external/cJSON.h"
+#include "../include/list.h"
+#include "../include/keyValuePair.h"
+#include "../include/binary.h"
+
+typedef struct actions_set_github_actions_permissions_repository_request_t actions_set_github_actions_permissions_repository_request_t;
+
+#include "allowed_actions.h"
+
+// Enum  for actions_set_github_actions_permissions_repository_request
+
+typedef enum  { github_v3_rest_api_actions_set_github_actions_permissions_repository_request__NULL = 0, github_v3_rest_api_actions_set_github_actions_permissions_repository_request__all, github_v3_rest_api_actions_set_github_actions_permissions_repository_request__local_only, github_v3_rest_api_actions_set_github_actions_permissions_repository_request__selected } github_v3_rest_api_actions_set_github_actions_permissions_repository_request__e;
+
+char* actions_set_github_actions_permissions_repository_request_allowed_actions_ToString(github_v3_rest_api_actions_set_github_actions_permissions_repository_request__e allowed_actions);
+
+github_v3_rest_api_actions_set_github_actions_permissions_repository_request__e actions_set_github_actions_permissions_repository_request_allowed_actions_FromString(char* allowed_actions);
+
+
+
+typedef struct actions_set_github_actions_permissions_repository_request_t {
+    int enabled; //boolean
+    allowed_actions_t *allowed_actions; // custom
+
+} actions_set_github_actions_permissions_repository_request_t;
+
+actions_set_github_actions_permissions_repository_request_t *actions_set_github_actions_permissions_repository_request_create(
+    int enabled,
+    allowed_actions_t *allowed_actions
+);
+
+void actions_set_github_actions_permissions_repository_request_free(actions_set_github_actions_permissions_repository_request_t *actions_set_github_actions_permissions_repository_request);
+
+actions_set_github_actions_permissions_repository_request_t *actions_set_github_actions_permissions_repository_request_parseFromJSON(cJSON *actions_set_github_actions_permissions_repository_requestJSON);
+
+cJSON *actions_set_github_actions_permissions_repository_request_convertToJSON(actions_set_github_actions_permissions_repository_request_t *actions_set_github_actions_permissions_repository_request);
+
+#endif /* _actions_set_github_actions_permissions_repository_request_H_ */
+

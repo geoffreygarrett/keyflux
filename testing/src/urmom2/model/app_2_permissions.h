@@ -1,0 +1,385 @@
+/*
+ * app_2_permissions.h
+ *
+ * The set of permissions for the GitHub app
+ */
+
+#ifndef _app_2_permissions_H_
+#define _app_2_permissions_H_
+
+#include <string.h>
+#include "../external/cJSON.h"
+#include "../include/list.h"
+#include "../include/keyValuePair.h"
+#include "../include/binary.h"
+
+typedef struct app_2_permissions_t app_2_permissions_t;
+
+
+// Enum ACTIONS for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_ACTIONS_NULL = 0, github_v3_rest_api_app_2_permissions_ACTIONS_read, github_v3_rest_api_app_2_permissions_ACTIONS_write } github_v3_rest_api_app_2_permissions_ACTIONS_e;
+
+char* app_2_permissions_actions_ToString(github_v3_rest_api_app_2_permissions_ACTIONS_e actions);
+
+github_v3_rest_api_app_2_permissions_ACTIONS_e app_2_permissions_actions_FromString(char* actions);
+
+// Enum ADMINISTRATION for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_ADMINISTRATION_NULL = 0, github_v3_rest_api_app_2_permissions_ADMINISTRATION_read, github_v3_rest_api_app_2_permissions_ADMINISTRATION_write } github_v3_rest_api_app_2_permissions_ADMINISTRATION_e;
+
+char* app_2_permissions_administration_ToString(github_v3_rest_api_app_2_permissions_ADMINISTRATION_e administration);
+
+github_v3_rest_api_app_2_permissions_ADMINISTRATION_e app_2_permissions_administration_FromString(char* administration);
+
+// Enum CHECKS for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_CHECKS_NULL = 0, github_v3_rest_api_app_2_permissions_CHECKS_read, github_v3_rest_api_app_2_permissions_CHECKS_write } github_v3_rest_api_app_2_permissions_CHECKS_e;
+
+char* app_2_permissions_checks_ToString(github_v3_rest_api_app_2_permissions_CHECKS_e checks);
+
+github_v3_rest_api_app_2_permissions_CHECKS_e app_2_permissions_checks_FromString(char* checks);
+
+// Enum CONTENTREFERENCES for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_CONTENTREFERENCES_NULL = 0, github_v3_rest_api_app_2_permissions_CONTENTREFERENCES_read, github_v3_rest_api_app_2_permissions_CONTENTREFERENCES_write } github_v3_rest_api_app_2_permissions_CONTENTREFERENCES_e;
+
+char* app_2_permissions_content_references_ToString(github_v3_rest_api_app_2_permissions_CONTENTREFERENCES_e content_references);
+
+github_v3_rest_api_app_2_permissions_CONTENTREFERENCES_e app_2_permissions_content_references_FromString(char* content_references);
+
+// Enum CONTENTS for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_CONTENTS_NULL = 0, github_v3_rest_api_app_2_permissions_CONTENTS_read, github_v3_rest_api_app_2_permissions_CONTENTS_write } github_v3_rest_api_app_2_permissions_CONTENTS_e;
+
+char* app_2_permissions_contents_ToString(github_v3_rest_api_app_2_permissions_CONTENTS_e contents);
+
+github_v3_rest_api_app_2_permissions_CONTENTS_e app_2_permissions_contents_FromString(char* contents);
+
+// Enum DEPLOYMENTS for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_DEPLOYMENTS_NULL = 0, github_v3_rest_api_app_2_permissions_DEPLOYMENTS_read, github_v3_rest_api_app_2_permissions_DEPLOYMENTS_write } github_v3_rest_api_app_2_permissions_DEPLOYMENTS_e;
+
+char* app_2_permissions_deployments_ToString(github_v3_rest_api_app_2_permissions_DEPLOYMENTS_e deployments);
+
+github_v3_rest_api_app_2_permissions_DEPLOYMENTS_e app_2_permissions_deployments_FromString(char* deployments);
+
+// Enum DISCUSSIONS for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_DISCUSSIONS_NULL = 0, github_v3_rest_api_app_2_permissions_DISCUSSIONS_read, github_v3_rest_api_app_2_permissions_DISCUSSIONS_write } github_v3_rest_api_app_2_permissions_DISCUSSIONS_e;
+
+char* app_2_permissions_discussions_ToString(github_v3_rest_api_app_2_permissions_DISCUSSIONS_e discussions);
+
+github_v3_rest_api_app_2_permissions_DISCUSSIONS_e app_2_permissions_discussions_FromString(char* discussions);
+
+// Enum EMAILS for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_EMAILS_NULL = 0, github_v3_rest_api_app_2_permissions_EMAILS_read, github_v3_rest_api_app_2_permissions_EMAILS_write } github_v3_rest_api_app_2_permissions_EMAILS_e;
+
+char* app_2_permissions_emails_ToString(github_v3_rest_api_app_2_permissions_EMAILS_e emails);
+
+github_v3_rest_api_app_2_permissions_EMAILS_e app_2_permissions_emails_FromString(char* emails);
+
+// Enum ENVIRONMENTS for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_ENVIRONMENTS_NULL = 0, github_v3_rest_api_app_2_permissions_ENVIRONMENTS_read, github_v3_rest_api_app_2_permissions_ENVIRONMENTS_write } github_v3_rest_api_app_2_permissions_ENVIRONMENTS_e;
+
+char* app_2_permissions_environments_ToString(github_v3_rest_api_app_2_permissions_ENVIRONMENTS_e environments);
+
+github_v3_rest_api_app_2_permissions_ENVIRONMENTS_e app_2_permissions_environments_FromString(char* environments);
+
+// Enum ISSUES for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_ISSUES_NULL = 0, github_v3_rest_api_app_2_permissions_ISSUES_read, github_v3_rest_api_app_2_permissions_ISSUES_write } github_v3_rest_api_app_2_permissions_ISSUES_e;
+
+char* app_2_permissions_issues_ToString(github_v3_rest_api_app_2_permissions_ISSUES_e issues);
+
+github_v3_rest_api_app_2_permissions_ISSUES_e app_2_permissions_issues_FromString(char* issues);
+
+// Enum KEYS for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_KEYS_NULL = 0, github_v3_rest_api_app_2_permissions_KEYS_read, github_v3_rest_api_app_2_permissions_KEYS_write } github_v3_rest_api_app_2_permissions_KEYS_e;
+
+char* app_2_permissions_keys_ToString(github_v3_rest_api_app_2_permissions_KEYS_e keys);
+
+github_v3_rest_api_app_2_permissions_KEYS_e app_2_permissions_keys_FromString(char* keys);
+
+// Enum MEMBERS for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_MEMBERS_NULL = 0, github_v3_rest_api_app_2_permissions_MEMBERS_read, github_v3_rest_api_app_2_permissions_MEMBERS_write } github_v3_rest_api_app_2_permissions_MEMBERS_e;
+
+char* app_2_permissions_members_ToString(github_v3_rest_api_app_2_permissions_MEMBERS_e members);
+
+github_v3_rest_api_app_2_permissions_MEMBERS_e app_2_permissions_members_FromString(char* members);
+
+// Enum METADATA for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_METADATA_NULL = 0, github_v3_rest_api_app_2_permissions_METADATA_read, github_v3_rest_api_app_2_permissions_METADATA_write } github_v3_rest_api_app_2_permissions_METADATA_e;
+
+char* app_2_permissions_metadata_ToString(github_v3_rest_api_app_2_permissions_METADATA_e metadata);
+
+github_v3_rest_api_app_2_permissions_METADATA_e app_2_permissions_metadata_FromString(char* metadata);
+
+// Enum ORGANIZATIONADMINISTRATION for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_ORGANIZATIONADMINISTRATION_NULL = 0, github_v3_rest_api_app_2_permissions_ORGANIZATIONADMINISTRATION_read, github_v3_rest_api_app_2_permissions_ORGANIZATIONADMINISTRATION_write } github_v3_rest_api_app_2_permissions_ORGANIZATIONADMINISTRATION_e;
+
+char* app_2_permissions_organization_administration_ToString(github_v3_rest_api_app_2_permissions_ORGANIZATIONADMINISTRATION_e organization_administration);
+
+github_v3_rest_api_app_2_permissions_ORGANIZATIONADMINISTRATION_e app_2_permissions_organization_administration_FromString(char* organization_administration);
+
+// Enum ORGANIZATIONHOOKS for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_ORGANIZATIONHOOKS_NULL = 0, github_v3_rest_api_app_2_permissions_ORGANIZATIONHOOKS_read, github_v3_rest_api_app_2_permissions_ORGANIZATIONHOOKS_write } github_v3_rest_api_app_2_permissions_ORGANIZATIONHOOKS_e;
+
+char* app_2_permissions_organization_hooks_ToString(github_v3_rest_api_app_2_permissions_ORGANIZATIONHOOKS_e organization_hooks);
+
+github_v3_rest_api_app_2_permissions_ORGANIZATIONHOOKS_e app_2_permissions_organization_hooks_FromString(char* organization_hooks);
+
+// Enum ORGANIZATIONPACKAGES for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_ORGANIZATIONPACKAGES_NULL = 0, github_v3_rest_api_app_2_permissions_ORGANIZATIONPACKAGES_read, github_v3_rest_api_app_2_permissions_ORGANIZATIONPACKAGES_write } github_v3_rest_api_app_2_permissions_ORGANIZATIONPACKAGES_e;
+
+char* app_2_permissions_organization_packages_ToString(github_v3_rest_api_app_2_permissions_ORGANIZATIONPACKAGES_e organization_packages);
+
+github_v3_rest_api_app_2_permissions_ORGANIZATIONPACKAGES_e app_2_permissions_organization_packages_FromString(char* organization_packages);
+
+// Enum ORGANIZATIONPLAN for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_ORGANIZATIONPLAN_NULL = 0, github_v3_rest_api_app_2_permissions_ORGANIZATIONPLAN_read, github_v3_rest_api_app_2_permissions_ORGANIZATIONPLAN_write } github_v3_rest_api_app_2_permissions_ORGANIZATIONPLAN_e;
+
+char* app_2_permissions_organization_plan_ToString(github_v3_rest_api_app_2_permissions_ORGANIZATIONPLAN_e organization_plan);
+
+github_v3_rest_api_app_2_permissions_ORGANIZATIONPLAN_e app_2_permissions_organization_plan_FromString(char* organization_plan);
+
+// Enum ORGANIZATIONPROJECTS for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_ORGANIZATIONPROJECTS_NULL = 0, github_v3_rest_api_app_2_permissions_ORGANIZATIONPROJECTS_read, github_v3_rest_api_app_2_permissions_ORGANIZATIONPROJECTS_write, github_v3_rest_api_app_2_permissions_ORGANIZATIONPROJECTS_admin } github_v3_rest_api_app_2_permissions_ORGANIZATIONPROJECTS_e;
+
+char* app_2_permissions_organization_projects_ToString(github_v3_rest_api_app_2_permissions_ORGANIZATIONPROJECTS_e organization_projects);
+
+github_v3_rest_api_app_2_permissions_ORGANIZATIONPROJECTS_e app_2_permissions_organization_projects_FromString(char* organization_projects);
+
+// Enum ORGANIZATIONSECRETS for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_ORGANIZATIONSECRETS_NULL = 0, github_v3_rest_api_app_2_permissions_ORGANIZATIONSECRETS_read, github_v3_rest_api_app_2_permissions_ORGANIZATIONSECRETS_write } github_v3_rest_api_app_2_permissions_ORGANIZATIONSECRETS_e;
+
+char* app_2_permissions_organization_secrets_ToString(github_v3_rest_api_app_2_permissions_ORGANIZATIONSECRETS_e organization_secrets);
+
+github_v3_rest_api_app_2_permissions_ORGANIZATIONSECRETS_e app_2_permissions_organization_secrets_FromString(char* organization_secrets);
+
+// Enum ORGANIZATIONSELFHOSTEDRUNNERS for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_ORGANIZATIONSELFHOSTEDRUNNERS_NULL = 0, github_v3_rest_api_app_2_permissions_ORGANIZATIONSELFHOSTEDRUNNERS_read, github_v3_rest_api_app_2_permissions_ORGANIZATIONSELFHOSTEDRUNNERS_write } github_v3_rest_api_app_2_permissions_ORGANIZATIONSELFHOSTEDRUNNERS_e;
+
+char* app_2_permissions_organization_self_hosted_runners_ToString(github_v3_rest_api_app_2_permissions_ORGANIZATIONSELFHOSTEDRUNNERS_e organization_self_hosted_runners);
+
+github_v3_rest_api_app_2_permissions_ORGANIZATIONSELFHOSTEDRUNNERS_e app_2_permissions_organization_self_hosted_runners_FromString(char* organization_self_hosted_runners);
+
+// Enum ORGANIZATIONUSERBLOCKING for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_ORGANIZATIONUSERBLOCKING_NULL = 0, github_v3_rest_api_app_2_permissions_ORGANIZATIONUSERBLOCKING_read, github_v3_rest_api_app_2_permissions_ORGANIZATIONUSERBLOCKING_write } github_v3_rest_api_app_2_permissions_ORGANIZATIONUSERBLOCKING_e;
+
+char* app_2_permissions_organization_user_blocking_ToString(github_v3_rest_api_app_2_permissions_ORGANIZATIONUSERBLOCKING_e organization_user_blocking);
+
+github_v3_rest_api_app_2_permissions_ORGANIZATIONUSERBLOCKING_e app_2_permissions_organization_user_blocking_FromString(char* organization_user_blocking);
+
+// Enum PACKAGES for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_PACKAGES_NULL = 0, github_v3_rest_api_app_2_permissions_PACKAGES_read, github_v3_rest_api_app_2_permissions_PACKAGES_write } github_v3_rest_api_app_2_permissions_PACKAGES_e;
+
+char* app_2_permissions_packages_ToString(github_v3_rest_api_app_2_permissions_PACKAGES_e packages);
+
+github_v3_rest_api_app_2_permissions_PACKAGES_e app_2_permissions_packages_FromString(char* packages);
+
+// Enum PAGES for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_PAGES_NULL = 0, github_v3_rest_api_app_2_permissions_PAGES_read, github_v3_rest_api_app_2_permissions_PAGES_write } github_v3_rest_api_app_2_permissions_PAGES_e;
+
+char* app_2_permissions_pages_ToString(github_v3_rest_api_app_2_permissions_PAGES_e pages);
+
+github_v3_rest_api_app_2_permissions_PAGES_e app_2_permissions_pages_FromString(char* pages);
+
+// Enum PULLREQUESTS for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_PULLREQUESTS_NULL = 0, github_v3_rest_api_app_2_permissions_PULLREQUESTS_read, github_v3_rest_api_app_2_permissions_PULLREQUESTS_write } github_v3_rest_api_app_2_permissions_PULLREQUESTS_e;
+
+char* app_2_permissions_pull_requests_ToString(github_v3_rest_api_app_2_permissions_PULLREQUESTS_e pull_requests);
+
+github_v3_rest_api_app_2_permissions_PULLREQUESTS_e app_2_permissions_pull_requests_FromString(char* pull_requests);
+
+// Enum REPOSITORYHOOKS for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_REPOSITORYHOOKS_NULL = 0, github_v3_rest_api_app_2_permissions_REPOSITORYHOOKS_read, github_v3_rest_api_app_2_permissions_REPOSITORYHOOKS_write } github_v3_rest_api_app_2_permissions_REPOSITORYHOOKS_e;
+
+char* app_2_permissions_repository_hooks_ToString(github_v3_rest_api_app_2_permissions_REPOSITORYHOOKS_e repository_hooks);
+
+github_v3_rest_api_app_2_permissions_REPOSITORYHOOKS_e app_2_permissions_repository_hooks_FromString(char* repository_hooks);
+
+// Enum REPOSITORYPROJECTS for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_REPOSITORYPROJECTS_NULL = 0, github_v3_rest_api_app_2_permissions_REPOSITORYPROJECTS_read, github_v3_rest_api_app_2_permissions_REPOSITORYPROJECTS_write, github_v3_rest_api_app_2_permissions_REPOSITORYPROJECTS_admin } github_v3_rest_api_app_2_permissions_REPOSITORYPROJECTS_e;
+
+char* app_2_permissions_repository_projects_ToString(github_v3_rest_api_app_2_permissions_REPOSITORYPROJECTS_e repository_projects);
+
+github_v3_rest_api_app_2_permissions_REPOSITORYPROJECTS_e app_2_permissions_repository_projects_FromString(char* repository_projects);
+
+// Enum SECRETSCANNINGALERTS for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_SECRETSCANNINGALERTS_NULL = 0, github_v3_rest_api_app_2_permissions_SECRETSCANNINGALERTS_read, github_v3_rest_api_app_2_permissions_SECRETSCANNINGALERTS_write } github_v3_rest_api_app_2_permissions_SECRETSCANNINGALERTS_e;
+
+char* app_2_permissions_secret_scanning_alerts_ToString(github_v3_rest_api_app_2_permissions_SECRETSCANNINGALERTS_e secret_scanning_alerts);
+
+github_v3_rest_api_app_2_permissions_SECRETSCANNINGALERTS_e app_2_permissions_secret_scanning_alerts_FromString(char* secret_scanning_alerts);
+
+// Enum SECRETS for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_SECRETS_NULL = 0, github_v3_rest_api_app_2_permissions_SECRETS_read, github_v3_rest_api_app_2_permissions_SECRETS_write } github_v3_rest_api_app_2_permissions_SECRETS_e;
+
+char* app_2_permissions_secrets_ToString(github_v3_rest_api_app_2_permissions_SECRETS_e secrets);
+
+github_v3_rest_api_app_2_permissions_SECRETS_e app_2_permissions_secrets_FromString(char* secrets);
+
+// Enum SECURITYEVENTS for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_SECURITYEVENTS_NULL = 0, github_v3_rest_api_app_2_permissions_SECURITYEVENTS_read, github_v3_rest_api_app_2_permissions_SECURITYEVENTS_write } github_v3_rest_api_app_2_permissions_SECURITYEVENTS_e;
+
+char* app_2_permissions_security_events_ToString(github_v3_rest_api_app_2_permissions_SECURITYEVENTS_e security_events);
+
+github_v3_rest_api_app_2_permissions_SECURITYEVENTS_e app_2_permissions_security_events_FromString(char* security_events);
+
+// Enum SECURITYSCANNINGALERT for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_SECURITYSCANNINGALERT_NULL = 0, github_v3_rest_api_app_2_permissions_SECURITYSCANNINGALERT_read, github_v3_rest_api_app_2_permissions_SECURITYSCANNINGALERT_write } github_v3_rest_api_app_2_permissions_SECURITYSCANNINGALERT_e;
+
+char* app_2_permissions_security_scanning_alert_ToString(github_v3_rest_api_app_2_permissions_SECURITYSCANNINGALERT_e security_scanning_alert);
+
+github_v3_rest_api_app_2_permissions_SECURITYSCANNINGALERT_e app_2_permissions_security_scanning_alert_FromString(char* security_scanning_alert);
+
+// Enum SINGLEFILE for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_SINGLEFILE_NULL = 0, github_v3_rest_api_app_2_permissions_SINGLEFILE_read, github_v3_rest_api_app_2_permissions_SINGLEFILE_write } github_v3_rest_api_app_2_permissions_SINGLEFILE_e;
+
+char* app_2_permissions_single_file_ToString(github_v3_rest_api_app_2_permissions_SINGLEFILE_e single_file);
+
+github_v3_rest_api_app_2_permissions_SINGLEFILE_e app_2_permissions_single_file_FromString(char* single_file);
+
+// Enum STATUSES for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_STATUSES_NULL = 0, github_v3_rest_api_app_2_permissions_STATUSES_read, github_v3_rest_api_app_2_permissions_STATUSES_write } github_v3_rest_api_app_2_permissions_STATUSES_e;
+
+char* app_2_permissions_statuses_ToString(github_v3_rest_api_app_2_permissions_STATUSES_e statuses);
+
+github_v3_rest_api_app_2_permissions_STATUSES_e app_2_permissions_statuses_FromString(char* statuses);
+
+// Enum TEAMDISCUSSIONS for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_TEAMDISCUSSIONS_NULL = 0, github_v3_rest_api_app_2_permissions_TEAMDISCUSSIONS_read, github_v3_rest_api_app_2_permissions_TEAMDISCUSSIONS_write } github_v3_rest_api_app_2_permissions_TEAMDISCUSSIONS_e;
+
+char* app_2_permissions_team_discussions_ToString(github_v3_rest_api_app_2_permissions_TEAMDISCUSSIONS_e team_discussions);
+
+github_v3_rest_api_app_2_permissions_TEAMDISCUSSIONS_e app_2_permissions_team_discussions_FromString(char* team_discussions);
+
+// Enum VULNERABILITYALERTS for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_VULNERABILITYALERTS_NULL = 0, github_v3_rest_api_app_2_permissions_VULNERABILITYALERTS_read, github_v3_rest_api_app_2_permissions_VULNERABILITYALERTS_write } github_v3_rest_api_app_2_permissions_VULNERABILITYALERTS_e;
+
+char* app_2_permissions_vulnerability_alerts_ToString(github_v3_rest_api_app_2_permissions_VULNERABILITYALERTS_e vulnerability_alerts);
+
+github_v3_rest_api_app_2_permissions_VULNERABILITYALERTS_e app_2_permissions_vulnerability_alerts_FromString(char* vulnerability_alerts);
+
+// Enum WORKFLOWS for app_2_permissions
+
+typedef enum  { github_v3_rest_api_app_2_permissions_WORKFLOWS_NULL = 0, github_v3_rest_api_app_2_permissions_WORKFLOWS_read, github_v3_rest_api_app_2_permissions_WORKFLOWS_write } github_v3_rest_api_app_2_permissions_WORKFLOWS_e;
+
+char* app_2_permissions_workflows_ToString(github_v3_rest_api_app_2_permissions_WORKFLOWS_e workflows);
+
+github_v3_rest_api_app_2_permissions_WORKFLOWS_e app_2_permissions_workflows_FromString(char* workflows);
+
+
+
+typedef struct app_2_permissions_t {
+    github_v3_rest_api_app_2_permissions_ACTIONS_e actions; //enum
+    github_v3_rest_api_app_2_permissions_ADMINISTRATION_e administration; //enum
+    github_v3_rest_api_app_2_permissions_CHECKS_e checks; //enum
+    github_v3_rest_api_app_2_permissions_CONTENTREFERENCES_e content_references; //enum
+    github_v3_rest_api_app_2_permissions_CONTENTS_e contents; //enum
+    github_v3_rest_api_app_2_permissions_DEPLOYMENTS_e deployments; //enum
+    github_v3_rest_api_app_2_permissions_DISCUSSIONS_e discussions; //enum
+    github_v3_rest_api_app_2_permissions_EMAILS_e emails; //enum
+    github_v3_rest_api_app_2_permissions_ENVIRONMENTS_e environments; //enum
+    github_v3_rest_api_app_2_permissions_ISSUES_e issues; //enum
+    github_v3_rest_api_app_2_permissions_KEYS_e keys; //enum
+    github_v3_rest_api_app_2_permissions_MEMBERS_e members; //enum
+    github_v3_rest_api_app_2_permissions_METADATA_e metadata; //enum
+    github_v3_rest_api_app_2_permissions_ORGANIZATIONADMINISTRATION_e organization_administration; //enum
+    github_v3_rest_api_app_2_permissions_ORGANIZATIONHOOKS_e organization_hooks; //enum
+    github_v3_rest_api_app_2_permissions_ORGANIZATIONPACKAGES_e organization_packages; //enum
+    github_v3_rest_api_app_2_permissions_ORGANIZATIONPLAN_e organization_plan; //enum
+    github_v3_rest_api_app_2_permissions_ORGANIZATIONPROJECTS_e organization_projects; //enum
+    github_v3_rest_api_app_2_permissions_ORGANIZATIONSECRETS_e organization_secrets; //enum
+    github_v3_rest_api_app_2_permissions_ORGANIZATIONSELFHOSTEDRUNNERS_e organization_self_hosted_runners; //enum
+    github_v3_rest_api_app_2_permissions_ORGANIZATIONUSERBLOCKING_e organization_user_blocking; //enum
+    github_v3_rest_api_app_2_permissions_PACKAGES_e packages; //enum
+    github_v3_rest_api_app_2_permissions_PAGES_e pages; //enum
+    github_v3_rest_api_app_2_permissions_PULLREQUESTS_e pull_requests; //enum
+    github_v3_rest_api_app_2_permissions_REPOSITORYHOOKS_e repository_hooks; //enum
+    github_v3_rest_api_app_2_permissions_REPOSITORYPROJECTS_e repository_projects; //enum
+    github_v3_rest_api_app_2_permissions_SECRETSCANNINGALERTS_e secret_scanning_alerts; //enum
+    github_v3_rest_api_app_2_permissions_SECRETS_e secrets; //enum
+    github_v3_rest_api_app_2_permissions_SECURITYEVENTS_e security_events; //enum
+    github_v3_rest_api_app_2_permissions_SECURITYSCANNINGALERT_e security_scanning_alert; //enum
+    github_v3_rest_api_app_2_permissions_SINGLEFILE_e single_file; //enum
+    github_v3_rest_api_app_2_permissions_STATUSES_e statuses; //enum
+    github_v3_rest_api_app_2_permissions_TEAMDISCUSSIONS_e team_discussions; //enum
+    github_v3_rest_api_app_2_permissions_VULNERABILITYALERTS_e vulnerability_alerts; //enum
+    github_v3_rest_api_app_2_permissions_WORKFLOWS_e workflows; //enum
+
+} app_2_permissions_t;
+
+app_2_permissions_t *app_2_permissions_create(
+    github_v3_rest_api_app_2_permissions_ACTIONS_e actions,
+    github_v3_rest_api_app_2_permissions_ADMINISTRATION_e administration,
+    github_v3_rest_api_app_2_permissions_CHECKS_e checks,
+    github_v3_rest_api_app_2_permissions_CONTENTREFERENCES_e content_references,
+    github_v3_rest_api_app_2_permissions_CONTENTS_e contents,
+    github_v3_rest_api_app_2_permissions_DEPLOYMENTS_e deployments,
+    github_v3_rest_api_app_2_permissions_DISCUSSIONS_e discussions,
+    github_v3_rest_api_app_2_permissions_EMAILS_e emails,
+    github_v3_rest_api_app_2_permissions_ENVIRONMENTS_e environments,
+    github_v3_rest_api_app_2_permissions_ISSUES_e issues,
+    github_v3_rest_api_app_2_permissions_KEYS_e keys,
+    github_v3_rest_api_app_2_permissions_MEMBERS_e members,
+    github_v3_rest_api_app_2_permissions_METADATA_e metadata,
+    github_v3_rest_api_app_2_permissions_ORGANIZATIONADMINISTRATION_e organization_administration,
+    github_v3_rest_api_app_2_permissions_ORGANIZATIONHOOKS_e organization_hooks,
+    github_v3_rest_api_app_2_permissions_ORGANIZATIONPACKAGES_e organization_packages,
+    github_v3_rest_api_app_2_permissions_ORGANIZATIONPLAN_e organization_plan,
+    github_v3_rest_api_app_2_permissions_ORGANIZATIONPROJECTS_e organization_projects,
+    github_v3_rest_api_app_2_permissions_ORGANIZATIONSECRETS_e organization_secrets,
+    github_v3_rest_api_app_2_permissions_ORGANIZATIONSELFHOSTEDRUNNERS_e organization_self_hosted_runners,
+    github_v3_rest_api_app_2_permissions_ORGANIZATIONUSERBLOCKING_e organization_user_blocking,
+    github_v3_rest_api_app_2_permissions_PACKAGES_e packages,
+    github_v3_rest_api_app_2_permissions_PAGES_e pages,
+    github_v3_rest_api_app_2_permissions_PULLREQUESTS_e pull_requests,
+    github_v3_rest_api_app_2_permissions_REPOSITORYHOOKS_e repository_hooks,
+    github_v3_rest_api_app_2_permissions_REPOSITORYPROJECTS_e repository_projects,
+    github_v3_rest_api_app_2_permissions_SECRETSCANNINGALERTS_e secret_scanning_alerts,
+    github_v3_rest_api_app_2_permissions_SECRETS_e secrets,
+    github_v3_rest_api_app_2_permissions_SECURITYEVENTS_e security_events,
+    github_v3_rest_api_app_2_permissions_SECURITYSCANNINGALERT_e security_scanning_alert,
+    github_v3_rest_api_app_2_permissions_SINGLEFILE_e single_file,
+    github_v3_rest_api_app_2_permissions_STATUSES_e statuses,
+    github_v3_rest_api_app_2_permissions_TEAMDISCUSSIONS_e team_discussions,
+    github_v3_rest_api_app_2_permissions_VULNERABILITYALERTS_e vulnerability_alerts,
+    github_v3_rest_api_app_2_permissions_WORKFLOWS_e workflows
+);
+
+void app_2_permissions_free(app_2_permissions_t *app_2_permissions);
+
+app_2_permissions_t *app_2_permissions_parseFromJSON(cJSON *app_2_permissionsJSON);
+
+cJSON *app_2_permissions_convertToJSON(app_2_permissions_t *app_2_permissions);
+
+#endif /* _app_2_permissions_H_ */
+

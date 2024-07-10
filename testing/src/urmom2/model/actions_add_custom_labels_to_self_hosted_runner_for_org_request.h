@@ -1,0 +1,37 @@
+/*
+ * actions_add_custom_labels_to_self_hosted_runner_for_org_request.h
+ *
+ * 
+ */
+
+#ifndef _actions_add_custom_labels_to_self_hosted_runner_for_org_request_H_
+#define _actions_add_custom_labels_to_self_hosted_runner_for_org_request_H_
+
+#include <string.h>
+#include "../external/cJSON.h"
+#include "../include/list.h"
+#include "../include/keyValuePair.h"
+#include "../include/binary.h"
+
+typedef struct actions_add_custom_labels_to_self_hosted_runner_for_org_request_t actions_add_custom_labels_to_self_hosted_runner_for_org_request_t;
+
+
+
+
+typedef struct actions_add_custom_labels_to_self_hosted_runner_for_org_request_t {
+    list_t *labels; //primitive container
+
+} actions_add_custom_labels_to_self_hosted_runner_for_org_request_t;
+
+actions_add_custom_labels_to_self_hosted_runner_for_org_request_t *actions_add_custom_labels_to_self_hosted_runner_for_org_request_create(
+    list_t *labels
+);
+
+void actions_add_custom_labels_to_self_hosted_runner_for_org_request_free(actions_add_custom_labels_to_self_hosted_runner_for_org_request_t *actions_add_custom_labels_to_self_hosted_runner_for_org_request);
+
+actions_add_custom_labels_to_self_hosted_runner_for_org_request_t *actions_add_custom_labels_to_self_hosted_runner_for_org_request_parseFromJSON(cJSON *actions_add_custom_labels_to_self_hosted_runner_for_org_requestJSON);
+
+cJSON *actions_add_custom_labels_to_self_hosted_runner_for_org_request_convertToJSON(actions_add_custom_labels_to_self_hosted_runner_for_org_request_t *actions_add_custom_labels_to_self_hosted_runner_for_org_request);
+
+#endif /* _actions_add_custom_labels_to_self_hosted_runner_for_org_request_H_ */
+

@@ -1,0 +1,45 @@
+/*
+ * actions_workflow_access_to_repository.h
+ *
+ * 
+ */
+
+#ifndef _actions_workflow_access_to_repository_H_
+#define _actions_workflow_access_to_repository_H_
+
+#include <string.h>
+#include "../external/cJSON.h"
+#include "../include/list.h"
+#include "../include/keyValuePair.h"
+#include "../include/binary.h"
+
+typedef struct actions_workflow_access_to_repository_t actions_workflow_access_to_repository_t;
+
+
+// Enum ACCESSLEVEL for actions_workflow_access_to_repository
+
+typedef enum  { github_v3_rest_api_actions_workflow_access_to_repository_ACCESSLEVEL_NULL = 0, github_v3_rest_api_actions_workflow_access_to_repository_ACCESSLEVEL_none, github_v3_rest_api_actions_workflow_access_to_repository_ACCESSLEVEL_user, github_v3_rest_api_actions_workflow_access_to_repository_ACCESSLEVEL_organization } github_v3_rest_api_actions_workflow_access_to_repository_ACCESSLEVEL_e;
+
+char* actions_workflow_access_to_repository_access_level_ToString(github_v3_rest_api_actions_workflow_access_to_repository_ACCESSLEVEL_e access_level);
+
+github_v3_rest_api_actions_workflow_access_to_repository_ACCESSLEVEL_e actions_workflow_access_to_repository_access_level_FromString(char* access_level);
+
+
+
+typedef struct actions_workflow_access_to_repository_t {
+    github_v3_rest_api_actions_workflow_access_to_repository_ACCESSLEVEL_e access_level; //enum
+
+} actions_workflow_access_to_repository_t;
+
+actions_workflow_access_to_repository_t *actions_workflow_access_to_repository_create(
+    github_v3_rest_api_actions_workflow_access_to_repository_ACCESSLEVEL_e access_level
+);
+
+void actions_workflow_access_to_repository_free(actions_workflow_access_to_repository_t *actions_workflow_access_to_repository);
+
+actions_workflow_access_to_repository_t *actions_workflow_access_to_repository_parseFromJSON(cJSON *actions_workflow_access_to_repositoryJSON);
+
+cJSON *actions_workflow_access_to_repository_convertToJSON(actions_workflow_access_to_repository_t *actions_workflow_access_to_repository);
+
+#endif /* _actions_workflow_access_to_repository_H_ */
+

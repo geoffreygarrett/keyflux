@@ -1,14 +1,19 @@
-# /Users/geoffreygarrett/Repositories/nsri-link/packages/keyflux/Cargo.toml
+# /Users/geoffreygarrett/Repositories/nsri-link/packages/keyflux/Cargo. toml
 
 [workspace]
 members = [
-    "keyflux_macros",
-    "keyflux_curl",
-    "keyflux", "keyflux_postgres",
+    "macros",
+    "curl",
+    "common",
+    "core",
+    "postgres",
+    "cli", "template", "playground",
 ]
 
 
-resolver = "1"
+resolver = "2"
+
+
 
 # Optionally, specify some default features
 #default = ["curl", "macro"]
