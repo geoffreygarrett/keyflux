@@ -7,13 +7,14 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use colored::Colorize;
+use lazy_static::lazy_static;
 use log::{info, trace};
 use regex::Regex;
 use serde_json::{json, Value};
 
 use crate::error::FluxError;
 use crate::file::format_manager::FormatAdapter;
-use crate::file::key_collection::{KeyCollection};
+use crate::file::key_collection::KeyCollection;
 use crate::file::metadata::extract_file_metadata;
 use crate::file::parser::env::{EnvParser, format_line, LineContent, parse_line};
 use crate::key::{Key, KeyDetail};
@@ -60,23 +61,52 @@ fn format_system_time(time: SystemTime) -> String {
     datetime.format("%Y-%m-%d %H:%M:%S UTC").to_string() // Include UTC to clarify timezone
 }
 
+
+struct NamedPattern {
+    name: &'static str,
+    pattern: &'static Regex,
+}
+
+impl NamedPattern {
+    fn new(name: &'static str, pattern: &'static Regex) -> Self {
+        NamedPattern { name, pattern }
+    }
+}
+
+lazy_static! {
+    static ref FILENAME_PATTERN1: NamedPattern = NamedPattern::new(
+        "segment_before_env",
+        &Regex::new(r"^(.*)\.env$").unwrap()
+    );
+    static ref FILENAME_PATTERN2: NamedPattern = NamedPattern::new(
+        "exact_env",
+        &Regex::new(r"^\.env$").unwrap()
+    );
+    static ref FILENAME_PATTERN3: NamedPattern = NamedPattern::new(
+        "segment_after_env",
+        &Regex::new(r"^\.env\.(.*)$").unwrap()
+    );
+}
+
 #[async_trait]
 impl FormatAdapter for EnvAdapter {
     fn default_file_name(&self) -> &str {
         ".env.{{name}}"
     }
 
+    fn filename_patterns(&self) -> Vec<&'static NamedPattern> {
+        vec![&*FILENAME_PATTERN1, &*FILENAME_PATTERN2, &*FILENAME_PATTERN3]
+    }
+
     fn format_tag(&self) -> &str {
         "env"
     }
-    fn path_valid(&self, path: &PathBuf) -> bool {
-        // Compile the regex to match ".env", ".env.<ANY NAME>", and "<ANY NAME>.env"
-        let re = Regex::new(r"^(.+\.)?\.env(\.[\w-]+)?$|^\w+\.env$|^\.env$").unwrap();
-
-        // Extract the file name from the path and check if it matches the regex
-        re.is_match(path.file_name().and_then(|n| n.to_str()).unwrap_or(""))
+    fn is_valid_path(&self, path: &PathBuf) -> bool {
+        self.filename_patterns()
+            .iter()
+            .any(|pattern| pattern.pattern.is_match(path.to_str().unwrap()))
     }
-    
+
     fn content_valid(&self, content: &str) -> bool {
         // Check if the content is a valid .env file
         EnvParser::parse(content).is_ok()

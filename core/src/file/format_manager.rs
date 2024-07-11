@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
-
+use std::vec;
 use async_trait::async_trait;
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -63,6 +63,17 @@ impl Placeholder {
     }
 }
 
+struct NamedPattern {
+    name: &'static str,
+    pattern: &'static Regex,
+}
+
+impl NamedPattern {
+    fn new(name: &'static str, pattern: &'static Regex) -> Self {
+        NamedPattern { name, pattern }
+    }
+}
+
 /// Trait for format adapters to handle different file formats.
 #[async_trait]
 pub trait FormatAdapter {
@@ -92,6 +103,13 @@ pub trait FormatAdapter {
         false
     }
     // fn filename_formats(&self) -> Vec<&str>;
+    fn filename_patterns(&self) -> Vec<&'static NamedPattern>;
+    fn is_valid_path(&self, path: &PathBuf) -> bool {
+        self.filename_patterns()
+            .iter()
+            .any(|pattern| pattern.pattern.is_match(path.to_str().unwrap()))
+    }
+
 }
 
 /// Manages different format adapters for loading and saving key collections.
