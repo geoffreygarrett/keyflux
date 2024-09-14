@@ -62,6 +62,7 @@ include!(concat!(env!("OUT_DIR"), "/locales.rs"));
 // Correctly reference SecretManager from your crate // Correctly reference ConfigError from your crate
 
 mod internal;
+mod models;
 
 // Initialize translations for the current crate.
 i18n!("i18n", fallback = "en");

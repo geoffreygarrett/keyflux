@@ -8,8 +8,7 @@ use serde_json::Value;
 
 // use diff::Diff;
 use keyflux_common::prelude::*;
-
-
+use keyflux_common::traits;
 
 /// `KeyDetail` represents a detailed key with multiple attributes.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -62,6 +61,23 @@ pub enum Key {
     KeyValue(KeyValue),
 }
 
+impl traits::key::Key for Key {
+    fn name(&self) -> String {
+        match self {
+            Key::Value(_) => panic!("Key::name() called on Key::Value"),
+            Key::KeyDetail(detail) => detail.name.clone(),
+            Key::KeyValue(kv) => kv.name.clone(),
+        }
+    }
+
+    fn value(&self) -> String {
+        match self {
+            Key::Value(value) => value.clone(),
+            Key::KeyDetail(detail) => detail.value.clone(),
+            Key::KeyValue(kv) => kv.value.clone(),
+        }
+    }
+}
 // Define a trait for common key functionality
 // trait KeyTrait {
 //     fn key(&self) -> String;

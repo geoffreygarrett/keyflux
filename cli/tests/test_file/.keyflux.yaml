@@ -1,0 +1,13 @@
+env:
+  - { file: "./data/.env.source" }
+version: 1
+groups:
+  - fluxes:
+      - type: file
+        args:
+          path: "./out/.env"
+          format: "env"
+
+    keys:
+      KEY_1: ${KEY_1}
+      KEY_2: ${KEY_2}

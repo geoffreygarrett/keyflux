@@ -20,6 +20,10 @@ sodiumoxide = "0.2.7"
 regex = "1.10.5"
 prettytable = "0.10"
 
+[test-dependencies]
+predicates = "3.1.0"
+assert_cmd = "1.0.1"
+
 [[bin]]
 name = "keyflux"
 path = "src/main.rs"

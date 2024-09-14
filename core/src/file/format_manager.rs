@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
-use std::vec;
+
 use async_trait::async_trait;
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -13,6 +13,7 @@ use crate::file::key_collection::KeyCollection;
 use crate::file::postman::PostmanAdapter;
 use crate::file::toml::TomlAdapter;
 use crate::file::yaml::YamlAdapter;
+use crate::models::named_pattern::NamedPattern;
 
 type GlobalFormatManager = RwLock<FormatManager>;
 
@@ -63,28 +64,19 @@ impl Placeholder {
     }
 }
 
-struct NamedPattern {
-    name: &'static str,
-    pattern: &'static Regex,
-}
 
-impl NamedPattern {
-    fn new(name: &'static str, pattern: &'static Regex) -> Self {
-        NamedPattern { name, pattern }
-    }
+lazy_static! {
+    static ref FILENAME_PATTERN1: NamedPattern = NamedPattern::new(
+        "json", r"^(.*)\.json$"
+    );
 }
 
 /// Trait for format adapters to handle different file formats.
 #[async_trait]
 pub trait FormatAdapter {
-    /// Checks if the adapter can handle the specified file path.
-    fn default_file_name(&self) -> &str;
 
     /// Checks if the adapter can handle the specified file path.
     fn format_tag(&self) -> &str;
-
-    /// Checks if the adapter can handle the specified file path.
-    fn path_valid(&self, path: &PathBuf) -> bool;
 
     /// Loads keys from a file using this adapter.
     fn load_keys(&self, path: &PathBuf) -> Result<KeyCollection, FluxError>;
@@ -96,20 +88,19 @@ pub trait FormatAdapter {
     fn priority(&self) -> i32 {
         0 // Default priority is 0, can be overridden by specific adapters.
     }
+
     fn can_handle(&self, path: &PathBuf) -> bool {
         self.path_valid(path)
     }
-    fn content_valid(&self, content: &str) -> bool {
-        false
-    }
-    // fn filename_formats(&self) -> Vec<&str>;
-    fn filename_patterns(&self) -> Vec<&'static NamedPattern>;
+
+    fn filename_patterns(&self) -> Vec<&'static crate::models::named_pattern::NamedPattern>;
     fn is_valid_path(&self, path: &PathBuf) -> bool {
         self.filename_patterns()
             .iter()
             .any(|pattern| pattern.pattern.is_match(path.to_str().unwrap()))
     }
 
+    fn is_valid_content(&self, content: &str) -> bool;
 }
 
 /// Manages different format adapters for loading and saving key collections.

@@ -6,13 +6,23 @@ use serde_json::Value;
 use keyflux_common::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Context<'a> {
+pub struct CliContext<'a> {
     config_path: PathBuf,
     handlebars: Handlebars<'a>,
     data: Value,
 }
 
-impl FluxContext for Context<'_> {
+impl<'a> CliContext<'a> {
+    pub fn new(config_path: PathBuf, handlebars: Handlebars<'a>, data: Value) -> Self {
+        CliContext {
+            config_path,
+            handlebars,
+            data,
+        }
+    }
+}
+
+impl FluxContext for CliContext<'_> {
     fn config_dir(&self) -> Option<&Path> {
         self.config_path.parent()
     }

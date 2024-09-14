@@ -16,22 +16,27 @@ use crate::error::{ConfigError, FluxError};
 use crate::file::key_collection::{KeyCollection, KeyCollectionTransform};
 use crate::key::{Key, KeyDetail, KeyTransform, KeyValue};
 use keyflux_common::prelude::*;
+
 use crate::utils::general::replace_vars_in_json;
 
+// Assuming KeyFluxConfig and FluxContext are defined elsewhere and imported appropriately
 pub struct KeyManager<'a> {
     config: &'a mut KeyFluxConfig,
     config_path: PathBuf,
     abort_signal: Arc<AtomicBool>,
+    context: Arc<dyn FluxContext>,
 }
 
 impl<'a> KeyManager<'a> {
-    pub fn new(config: &'a mut KeyFluxConfig, config_path: &PathBuf) -> Self {
+    pub fn new(config: &'a mut KeyFluxConfig, config_path: &PathBuf, context: Arc<dyn FluxContext>) -> KeyManager<'a> {
         KeyManager {
             config,
             config_path: config_path.clone(),
             abort_signal: Arc::new(AtomicBool::new(false)),
+            context,
         }
     }
+
 
     // async fn process_flux(&self, context: &FluxContext, flux: &mut impl Flux) -> Result<()> {
     //     if flux.has_list_async() {
@@ -121,7 +126,6 @@ impl<'a> KeyManager<'a> {
             let mut base_keys = KeyCollection::new();
             base_keys.merge(new_keys);
             trace!("{}", t!("trace.flux_instance_keys_processed"));
-            let mut context = Context::new(&self.config_path, base_keys);
             ////////////////////////////////////////////////
             for mut flux in &mut group.fluxes {
                 trace!("{}", t!("trace.flux_instance_processing"));
@@ -148,7 +152,7 @@ impl<'a> KeyManager<'a> {
                 // // INITIALIZE
                 // ////////////////////////////////////////////////
                 // trace!("{}", t!("trace.flux_instance_initializing"));
-                flux.initialize(&mut context).await?;
+                flux.initialize(&self.context).await?;
                 // trace!("{}", t!("trace.flux_instance_initialized"));
                 // ////////////////////////////////////////////////
                 //

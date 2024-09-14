@@ -15,7 +15,7 @@ anyhow = "1.0.86"
 futures = "0.3.30"
 async-trait = "0.1.80"
 mashup = "0.1"
-tokio = "1.38.0"
+tokio = { version="1.38.0" , features = ["full"] }
 log = "0.4.22"
 
 base64 = "0.22.1"
@@ -23,3 +23,7 @@ handlebars = { version = "5.1.2" }
 sodiumoxide = "0.2.7"
 sqlx = { version = "0.7.4", features = ["postgres", "uuid"] }
 regex = "1.10.5"
+serde_yaml = "0.9.34+deprecated"
+
+[test-dependencies]
+serde_yaml = "0.9.34+deprecated"

@@ -3,6 +3,7 @@ use std::path::PathBuf;
 
 use async_trait::async_trait;
 use chrono::Utc;
+use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use serde_json;
 use serde_json::Value;
@@ -12,6 +13,7 @@ use crate::error::FluxError;
 use crate::file::format_manager::FormatAdapter;
 use crate::file::key_collection::{KeyCollection, KeyCollectionTransform};
 use crate::key::{Key, KeyDetail, KeyTransform};
+use crate::models::named_pattern::NamedPattern;
 
 pub struct PostmanAdapter;
 
@@ -46,24 +48,18 @@ struct PostmanVariable {
     tags: Option<Vec<String>>,
 }
 
+lazy_static! {
+    static ref FILENAME_PATTERN1: NamedPattern = NamedPattern::new(
+        "toml", r"^(.*)\.toml$"
+    );
+}
+
 #[async_trait]
 impl FormatAdapter for PostmanAdapter {
     fn format_tag(&self) -> &str {
         "postman"
     }
-    fn default_file_name(&self) -> &str {
-        "{{name}}.json"
-    }
 
-    // fn filename_formats(&self) -> Vec<&str> {
-    //     vec!["(?:<name>\\.)?json"]
-    // }
-
-    fn path_valid(&self, path: &PathBuf) -> bool {
-        PathBuf::from(path)
-            .extension()
-            .map_or(false, |ext| ext == "json")
-    }
 
     fn load_keys(&self, path: &PathBuf) -> Result<KeyCollection, FluxError> {
         let contents = std::fs::read_to_string(path)?;
@@ -120,5 +116,13 @@ impl FormatAdapter for PostmanAdapter {
 
     fn can_handle(&self, path: &PathBuf) -> bool {
         path.extension().map_or(false, |ext| ext == "json")
+    }
+
+    fn filename_patterns(&self) -> Vec<&'static NamedPattern> {
+        vec![&*FILENAME_PATTERN1]
+    }
+
+    fn is_valid_content(&self, content: &str) -> bool {
+        serde_json::from_str::<PostmanEnvironment>(content).is_ok()
     }
 }

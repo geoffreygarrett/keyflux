@@ -1,0 +1,82 @@
+version: 1.0.0
+
+config:
+  # Enables a safe default where explicit enumeration is required to include keys from files,
+  # preventing accidental exposure of sensitive data.
+  groups_include_all_when_keys_unspecified: false
+
+groups:
+  # Group configuration for database connectivity.
+  - name: "database"
+    description: "Contains keys for database connectivity."
+    file: "config/database_vars.yaml"
+    # Uncomment the following line to include all keys from the file without explicitly listing them.
+    # keys: all
+
+  # Group configuration for email services, demonstrating explicit key inclusion and remapping.
+  - name: "email_services"
+    description: "Configuration keys for setting up external email services."
+    file: "config/email_vars.yaml"
+    keys:
+      - "email_host"  # Specifies the hostname for the email service.
+      - "email_port"  # Specifies the port number for the email service.
+#      - { email_service_api_key: "api_key" }  # Remaps 'api_key' to 'email_service_api_key' for clarity.
+      - { name: "default_email", value: "example@example.com" }  # Sets a fixed value for 'default_email'.
+      - { name: "support_email", key: "email_address" }  # Remaps 'email_address' to 'support_email'.
+    config:
+      target:
+        - name: "flux_prod"
+          secure: true  # Overrides the default target security setting for production.
+
+
+environments:
+  # Local development environment showing direct setting of variables and file overrides.
+  local:
+    description: "Settings for local development."
+    files:
+      - "config/local_overrides.yaml"  # Overrides for local development environment.
+    keys:
+      - "local_api_key"  # Directly sets an API key for local development.
+    target: "flux_local"
+
+  # Production environment that utilizes group settings and demonstrates additional key settings.
+  production:
+    description: "Settings optimized for production use."
+    groups:
+      - "database"  # Includes all keys from the 'database' group.
+      - "email_services"  # Includes all keys from the 'email_services' group.
+    keys:
+      - "email_service_api_key"  # Ensures the production API key is set for email services.
+    target: "flux_prod"
+    config:
+      target:
+        - name: "flux_prod"
+          secure: true  # Overrides the default target security setting for production.
+
+targets:
+  # Targets define where configurations are deployed. Each target can have a distinct type and configuration.
+  - name: "flux_local"
+    type: "file"
+    description: "Local deployment target."
+    config:
+      path: "deployments/flux_local.yaml"
+      format: "yaml"  # Specifies the format explicitly; useful when file extension inference is not desired.
+
+  - name: "flux_dev"
+    type: "http"
+    description: "Development deployment target."
+    config:
+      url: "http://dev.flux.example.com"
+      token: "devtoken"
+
+  - name: "flux_prod"
+    description: "Production deployment target."
+    config:
+      token: "prodtoken"
+      url: "http://prod.flux.example.com"
+      secure: true  # Indicates that security enhancements are applied for production.
+
+documentation:
+  # Provides a link to the detailed documentation and the date when the configuration was last updated.
+  url: "https://keyflux.example.com/docs"
+  last_updated: "2024-07-14"

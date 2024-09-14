@@ -18,6 +18,7 @@ use crate::file::key_collection::KeyCollection;
 use crate::file::metadata::extract_file_metadata;
 use crate::file::parser::env::{EnvParser, format_line, LineContent, parse_line};
 use crate::key::{Key, KeyDetail};
+use crate::models::named_pattern::NamedPattern;
 
 pub struct EnvAdapter;
 
@@ -62,37 +63,21 @@ fn format_system_time(time: SystemTime) -> String {
 }
 
 
-struct NamedPattern {
-    name: &'static str,
-    pattern: &'static Regex,
-}
-
-impl NamedPattern {
-    fn new(name: &'static str, pattern: &'static Regex) -> Self {
-        NamedPattern { name, pattern }
-    }
-}
-
 lazy_static! {
     static ref FILENAME_PATTERN1: NamedPattern = NamedPattern::new(
-        "segment_before_env",
-        &Regex::new(r"^(.*)\.env$").unwrap()
+        "segment_before_env", r"^(.*)\.env$"
     );
     static ref FILENAME_PATTERN2: NamedPattern = NamedPattern::new(
-        "exact_env",
-        &Regex::new(r"^\.env$").unwrap()
+        "exact_env", r"^\.env$"
     );
     static ref FILENAME_PATTERN3: NamedPattern = NamedPattern::new(
-        "segment_after_env",
-        &Regex::new(r"^\.env\.(.*)$").unwrap()
+        "segment_after_env", r"^\.env\.(.*)$"
     );
 }
 
 #[async_trait]
 impl FormatAdapter for EnvAdapter {
-    fn default_file_name(&self) -> &str {
-        ".env.{{name}}"
-    }
+
 
     fn filename_patterns(&self) -> Vec<&'static NamedPattern> {
         vec![&*FILENAME_PATTERN1, &*FILENAME_PATTERN2, &*FILENAME_PATTERN3]
@@ -101,13 +86,8 @@ impl FormatAdapter for EnvAdapter {
     fn format_tag(&self) -> &str {
         "env"
     }
-    fn is_valid_path(&self, path: &PathBuf) -> bool {
-        self.filename_patterns()
-            .iter()
-            .any(|pattern| pattern.pattern.is_match(path.to_str().unwrap()))
-    }
 
-    fn content_valid(&self, content: &str) -> bool {
+    fn is_valid_content(&self, content: &str) -> bool {
         // Check if the content is a valid .env file
         EnvParser::parse(content).is_ok()
     }
